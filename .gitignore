@@ -72,3 +72,20 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Unreal Engine 기본 제외
+/[Bb]inaries/
+/[Bb]uild/
+/[Dd]erivedDataCache/
+/[Ii]ntermediate/
+/[Ss]aved/
+/[Cc]ontent/
+
+# Visual Studio 파일
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# 기타
+*.log
