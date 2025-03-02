@@ -19,22 +19,4 @@ class PROJECTCJH_API AJHPlayerController : public APlayerController
 public:
 	virtual void PostInitializeComponents() override;
     virtual void BeginPlay() override;
-
-protected:
-    void SetupInputBindings();
-    void OnMove(const FInputActionValue& Value);
-
-protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-    UInputMappingContext* InputMappingContext;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-    UInputAction* MoveAction;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-    UInputAction* LookAction;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-    UInputAction* JumpAction;
-
 };

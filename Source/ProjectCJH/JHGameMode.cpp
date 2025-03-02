@@ -3,11 +3,11 @@
 
 #include "JHGameMode.h"
 #include "JHPlayerController.h"
-#include "JHPawn.h"
+#include "JHCharacter.h"
 
 AJHGameMode::AJHGameMode()
 {
-	DefaultPawnClass = AJHPawn::StaticClass();
+	DefaultPawnClass = AJHCharacter::StaticClass();
 	PlayerControllerClass = AJHPlayerController::StaticClass();
 }
 

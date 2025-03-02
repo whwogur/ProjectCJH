@@ -6,9 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "JHGameMode.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PROJECTCJH_API AJHGameMode : public AGameModeBase
 {

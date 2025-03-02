@@ -1,0 +1,54 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "ProjectCJH.h"
+#include "GameFramework/Character.h"
+#include "JHCharacter.generated.h"
+
+class UJHInputData;
+class UInputMappingContext;
+struct FInputActionValue;
+
+UCLASS()
+class PROJECTCJH_API AJHCharacter : public ACharacter
+{
+	GENERATED_BODY()
+
+public:
+	// Sets default values for this character's properties
+	AJHCharacter();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	virtual void Jump() override;
+	virtual void StopJumping() override;
+	virtual void AddControllerYawInput(float Val) override;
+	virtual void AddControllerPitchInput(float Val) override;
+	virtual void AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce = false) override;
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
+	UInputMappingContext* InputMapping;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
+	UJHInputData* InputActions;
+
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	USpringArmComponent* SpringArm;
+
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	UCameraComponent* Camera;
+
+private:
+	void OnJumpAction(const FInputActionValue& Value);
+	void OnLookAction(const FInputActionValue& Value);
+	void OnMoveAction(const FInputActionValue& Value);
+	void OnAttackAction(const FInputActionValue& Value);
+};
