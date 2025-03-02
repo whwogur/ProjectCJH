@@ -3,12 +3,14 @@
 
 #include "JHCharacter.h"
 #include "JHInputData.h"
+#include "JHAnimInstance.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AJHCharacter::AJHCharacter()
+    : IsAttacking(false)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -24,6 +26,13 @@ AJHCharacter::AJHCharacter()
 
     SpringArm->TargetArmLength = 400.0f;
     SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
+    SpringArm->bDoCollisionTest = true;
+    SpringArm->TargetArmLength = 450.0f;
+    SpringArm->bUsePawnControlRotation = true;
+
+    GetCharacterMovement()->bOrientRotationToMovement = true;
+    GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.f, 0.0f);
+    GetCharacterMovement()->JumpZVelocity = 800.0f;
 
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_MANNY(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny"));
     if (SK_MANNY.Succeeded())
@@ -55,6 +64,15 @@ void AJHCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AJHCharacter::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+    JHAnim = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
+    JHCHECK(JHAnim);
+
+    JHAnim->OnMontageEnded.AddDynamic(this, &AJHCharacter::OnAttackMontageEnded);
 }
 
 // Called to bind functionality to input
@@ -115,10 +133,21 @@ void AJHCharacter::OnMoveAction(const FInputActionValue& Value)
 
 void AJHCharacter::OnAttackAction(const FInputActionValue& Value)
 {
+    if (IsAttacking)
+        return;
+
     if (Value.Get<bool>())
     {
-        
+        IsAttacking = true;
+        JHAnim->PlayAttackMontage();
     }
+}
+
+void AJHCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+    JHCHECK(IsAttacking);
+    JHLOG(Warning, TEXT("Attack Ended"));
+    IsAttacking = false;
 }
 
 void AJHCharacter::Jump()
