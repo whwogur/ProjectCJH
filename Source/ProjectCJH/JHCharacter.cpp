@@ -67,14 +67,6 @@ void AJHCharacter::BeginPlay()
             InputSubsystem->AddMappingContext(InputMapping, 0);
         }
     }
-
-    // ¹«±â ÀåÂø
-    FName WeaponSocket(TEXT("hand_rSocket"));
-    AJHWeapon* CurWeapon = GetWorld()->SpawnActor<AJHWeapon>(FVector::ZeroVector, FRotator::ZeroRotator);
-    if (nullptr != CurWeapon)
-    {
-        CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
-    }
 }
 
 // Called every frame
@@ -117,6 +109,24 @@ void AJHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
         EnhancedInputComponent->BindAction(InputActions->LookAction, ETriggerEvent::Triggered, this, &AJHCharacter::OnLookAction);
         EnhancedInputComponent->BindAction(InputActions->MoveAction, ETriggerEvent::Triggered, this, &AJHCharacter::OnMoveAction);
         EnhancedInputComponent->BindAction(InputActions->AttackAction, ETriggerEvent::Triggered, this, &AJHCharacter::OnAttackAction);
+    }
+}
+
+bool AJHCharacter::CanSetWeapon()
+{
+    return (nullptr == CurrentWeapon);
+}
+
+void AJHCharacter::SetWeapon(AJHWeapon* NewWeapon)
+{
+    JHCHECK((nullptr != NewWeapon && nullptr == CurrentWeapon));
+
+    FName WeaponSocket(TEXT("hand_rSocket"));
+    if (nullptr != NewWeapon)
+    {
+        NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
+        NewWeapon->SetOwner(this);
+        CurrentWeapon = NewWeapon;
     }
 }
 

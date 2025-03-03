@@ -18,7 +18,6 @@ class PROJECTCJH_API AJHCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AJHCharacter();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -35,6 +34,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+	bool CanSetWeapon();
+	void SetWeapon(class AJHWeapon* NewWeapon);
+public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputMappingContext* InputMapping;
 
@@ -48,7 +51,7 @@ public:
 	UCameraComponent* Camera;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	UStaticMeshComponent* Weapon;
+	class AJHWeapon* CurrentWeapon;
 private:
 	void OnJumpAction(const FInputActionValue& Value);
 	void OnLookAction(const FInputActionValue& Value);

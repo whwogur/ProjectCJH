@@ -2,6 +2,8 @@
 
 
 #include "LootBox.h"
+#include "JHWeapon.h"
+#include "JHCharacter.h"
 
 // Sets default values
 ALootBox::ALootBox()
@@ -25,6 +27,8 @@ ALootBox::ALootBox()
 
 	Trigger->SetCollisionProfileName(TEXT("Loot"));
 	Box->SetCollisionProfileName(TEXT("NoCollision"));
+
+	WeaponItemClass = AJHWeapon::StaticClass();
 }
 
 // Called when the game starts or when spawned
@@ -42,5 +46,21 @@ void ALootBox::PostInitializeComponents()
 void ALootBox::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweeoResult)
 {
 	JHLOG_S(Warning);
+
+	AJHCharacter* Character = Cast<AJHCharacter>(OtherActor);
+	JHCHECK(Character);
+
+	if (nullptr != Character && nullptr != WeaponItemClass)
+	{
+		if (Character->CanSetWeapon())
+		{
+			AJHWeapon* NewWeapon = GetWorld()->SpawnActor<AJHWeapon>(WeaponItemClass, FVector::ZeroVector, FRotator::ZeroRotator);
+			Character->SetWeapon(NewWeapon);
+		}
+		else
+		{
+			JHLOG(Warning, TEXT("%s Can't Equip Weapon"), *Character->GetName());
+		}
+	}
 }
 
