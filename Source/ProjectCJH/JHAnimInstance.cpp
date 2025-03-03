@@ -7,6 +7,7 @@
 UJHAnimInstance::UJHAnimInstance()
 	: CurrentPawnSpeed(0.0f)
 	, IsInAir(false)
+	, IsDead(false)
 {
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/Animations/Combat/AttackCombo02_RM.AttackCombo02_RM"));
 	if (ATTACK_MONTAGE.Succeeded())
@@ -20,7 +21,7 @@ void UJHAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
 	APawn* pOwner = TryGetPawnOwner();
-	if (::IsValid(pOwner))
+	if (::IsValid(pOwner) && !IsDead)
 	{
 		FVector Velocity = pOwner->GetVelocity();
 		CurrentPawnSpeed = Velocity.Size();

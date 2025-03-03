@@ -27,6 +27,7 @@ protected:
 	virtual void AddControllerYawInput(float Val) override;
 	virtual void AddControllerPitchInput(float Val) override;
 	virtual void AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce = false) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -46,6 +47,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	UCameraComponent* Camera;
 
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UStaticMeshComponent* Weapon;
 private:
 	void OnJumpAction(const FInputActionValue& Value);
 	void OnLookAction(const FInputActionValue& Value);

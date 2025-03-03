@@ -6,6 +6,8 @@
 #include "JHAnimInstance.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/DamageEvents.h"
+#include "JHWeapon.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -37,8 +39,9 @@ AJHCharacter::AJHCharacter()
 
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.f, 0.0f);
-    GetCharacterMovement()->JumpZVelocity = 800.0f;
+    GetCharacterMovement()->JumpZVelocity = 400.0f;
 
+    // 디폴트 스켈메쉬
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_MANNY(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny"));
     if (SK_MANNY.Succeeded())
     {
@@ -63,6 +66,14 @@ void AJHCharacter::BeginPlay()
         {
             InputSubsystem->AddMappingContext(InputMapping, 0);
         }
+    }
+
+    // 무기 장착
+    FName WeaponSocket(TEXT("hand_rSocket"));
+    AJHWeapon* CurWeapon = GetWorld()->SpawnActor<AJHWeapon>(FVector::ZeroVector, FRotator::ZeroRotator);
+    if (nullptr != CurWeapon)
+    {
+        CurWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
     }
 }
 
@@ -229,6 +240,9 @@ void AJHCharacter::ApplyDamage()
         {
             JHLOG(Warning, TEXT("Hit Actor: %s"), *HitResult.GetActor()->GetName());
         }
+
+        FDamageEvent DamageEvent;
+        HitResult.GetActor()->TakeDamage(50.0f, DamageEvent, GetController(), this);
     }
 }
 
@@ -256,4 +270,17 @@ void AJHCharacter::AddControllerPitchInput(float Val)
 void AJHCharacter::AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce)
 {
     Super::AddMovementInput(WorldDirection, ScaleValue, bForce);
+}
+
+float AJHCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+    float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+    JHLOG(Warning, TEXT("Actor: %s took Damage: %f"), *GetName(), FinalDamage);
+
+    if (FinalDamage > 0.0f)
+    {
+        JHAnim->SetDeadAnim();
+        SetActorEnableCollision(false);
+    }
+    return FinalDamage;
 }
