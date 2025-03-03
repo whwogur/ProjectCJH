@@ -11,6 +11,10 @@
 // Sets default values
 AJHCharacter::AJHCharacter()
     : IsAttacking(false)
+    , CurrentCombo(0)
+    , MaxCombo(3)
+    , AttackRange(200.0f)
+    , AttackRadius(50.0f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -23,6 +27,7 @@ AJHCharacter::AJHCharacter()
 
     GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.f, 0.0f));
     GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
+    GetCapsuleComponent()->SetCollisionProfileName(TEXT("JHCharacter"));
 
     SpringArm->TargetArmLength = 400.0f;
     SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
@@ -39,6 +44,8 @@ AJHCharacter::AJHCharacter()
     {
         GetMesh()->SetSkeletalMesh(SK_MANNY.Object);
     }
+
+    AttackEndComboState();
 }
 
 // Called when the game starts or when spawned
@@ -72,7 +79,18 @@ void AJHCharacter::PostInitializeComponents()
     JHAnim = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
     JHCHECK(JHAnim);
 
+    JHLOG(Warning, TEXT("Binding OnMontageEnded"));
     JHAnim->OnMontageEnded.AddDynamic(this, &AJHCharacter::OnAttackMontageEnded);
+    JHAnim->OnNextAttackCheck.AddLambda([this]() -> void {
+        JHLOG(Warning, TEXT("OnNextAttackCheck"));
+        CanExecuteNextCombo = false;
+        if (IsComboInputOn)
+        {
+            AttackStartComboState();
+            JHAnim->JumpToAttackMontageSection(CurrentCombo);
+        }
+    });
+    JHAnim->OnApplyDamage.AddUObject(this, &AJHCharacter::ApplyDamage);
 }
 
 // Called to bind functionality to input
@@ -84,17 +102,11 @@ void AJHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
     if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
     {
-        JHLOG(Warning, TEXT("Binding Input Actions"));
         EnhancedInputComponent->BindAction(InputActions->JumpAction, ETriggerEvent::Triggered, this, &AJHCharacter::OnJumpAction);
         EnhancedInputComponent->BindAction(InputActions->LookAction, ETriggerEvent::Triggered, this, &AJHCharacter::OnLookAction);
         EnhancedInputComponent->BindAction(InputActions->MoveAction, ETriggerEvent::Triggered, this, &AJHCharacter::OnMoveAction);
         EnhancedInputComponent->BindAction(InputActions->AttackAction, ETriggerEvent::Triggered, this, &AJHCharacter::OnAttackAction);
     }
-    else
-    {
-        JHLOG(Error, TEXT("Failed to cast UEnhancedInputComponent!"));
-    }
-
 }
 
 void AJHCharacter::OnJumpAction(const FInputActionValue& Value)
@@ -133,21 +145,91 @@ void AJHCharacter::OnMoveAction(const FInputActionValue& Value)
 
 void AJHCharacter::OnAttackAction(const FInputActionValue& Value)
 {
-    if (IsAttacking)
-        return;
-
     if (Value.Get<bool>())
     {
-        IsAttacking = true;
-        JHAnim->PlayAttackMontage();
+        JHLOG(Error, TEXT("Combo: %d"), CurrentCombo);
+        if (IsAttacking)
+        {
+            JHCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
+            if (CanExecuteNextCombo)
+            {
+                IsComboInputOn = true;
+            }
+        }
+        else
+        {
+            JHCHECK((0 == CurrentCombo));
+            AttackStartComboState();
+            JHAnim->PlayAttackMontage();
+            JHAnim->JumpToAttackMontageSection(CurrentCombo);
+            IsAttacking = true;
+        }
     }
 }
 
 void AJHCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
     JHCHECK(IsAttacking);
+    JHCHECK((CurrentCombo > 0));
     JHLOG(Warning, TEXT("Attack Ended"));
     IsAttacking = false;
+    AttackEndComboState();
+}
+
+void AJHCharacter::AttackStartComboState()
+{
+    CanExecuteNextCombo = true;
+    IsComboInputOn = false;
+    JHCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1));
+    CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
+}
+
+void AJHCharacter::AttackEndComboState()
+{
+    IsComboInputOn = false;
+    CanExecuteNextCombo = false;
+    CurrentCombo = 0;
+}
+
+void AJHCharacter::ApplyDamage()
+{
+    FHitResult HitResult;
+    FCollisionQueryParams Params(NAME_None, false, this);
+    bool bResult = GetWorld()->SweepSingleByChannel(
+        HitResult,
+        GetActorLocation(),
+        GetActorLocation() + GetActorForwardVector() * 200.0f,
+        FQuat::Identity,
+        ECollisionChannel::ECC_GameTraceChannel2,
+        FCollisionShape::MakeSphere(50.0f),
+        Params
+    );
+
+#if ENABLE_DRAW_DEBUG
+    FVector TraceVec = GetActorForwardVector() * AttackRange;
+    FVector Center = GetActorLocation() + TraceVec * 0.5f;
+    float HalfHeight = AttackRange * 0.5f + AttackRadius;
+    FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
+    FColor DrawColor = bResult ? FColor::Red : FColor::Green;
+    float DebugLifeTime = 2.0f;
+
+    DrawDebugCapsule(GetWorld(),
+        Center,
+        HalfHeight,
+        AttackRadius,
+        CapsuleRot,
+        DrawColor,
+        false,
+        DebugLifeTime);
+#endif
+
+    if (bResult)
+    {
+        if (::IsValid(HitResult.GetActor()))
+        {
+            JHLOG(Warning, TEXT("Hit Actor: %s"), *HitResult.GetActor()->GetName());
+        }
+    }
 }
 
 void AJHCharacter::Jump()

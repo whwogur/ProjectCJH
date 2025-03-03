@@ -52,11 +52,34 @@ private:
 	void OnMoveAction(const FInputActionValue& Value);
 	void OnAttackAction(const FInputActionValue& Value);
 
+	UFUNCTION(BlueprintCallable)
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	void AttackStartComboState();
+	void AttackEndComboState();
+	void ApplyDamage();
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Attack", Meta=(AllowPrivateAccess=true))
 	bool IsAttacking;
 
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	bool CanExecuteNextCombo;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	bool IsComboInputOn;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	int32 CurrentCombo;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	int32 MaxCombo;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	float AttackRange;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	float AttackRadius;
+	
 	UPROPERTY()
 	class UJHAnimInstance* JHAnim;
 };
