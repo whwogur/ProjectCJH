@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/WidgetComponent.h"
 #include "JHCharacterWidget.h"
+#include "JHAIController.h"
 
 // Sets default values
 AJHCharacter::AJHCharacter()
@@ -53,6 +54,7 @@ AJHCharacter::AJHCharacter()
     }
 
     GetCharacterMovement()->bOrientRotationToMovement = true;
+    GetCharacterMovement()->MaxWalkSpeed = 600.0f;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.f, 0.0f);
     GetCharacterMovement()->JumpZVelocity = 400.0f;
 
@@ -62,6 +64,9 @@ AJHCharacter::AJHCharacter()
     {
         GetMesh()->SetSkeletalMesh(SK_MANNY.Object);
     }
+
+    AIControllerClass = AJHAIController::StaticClass();
+    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
     AttackEndComboState();
 }
