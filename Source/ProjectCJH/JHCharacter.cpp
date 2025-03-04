@@ -82,6 +82,12 @@ void AJHCharacter::BeginPlay()
             InputSubsystem->AddMappingContext(InputMapping, 0);
         }
     }
+
+    UJHCharacterWidget* CharacterWidget = Cast<UJHCharacterWidget>(HPBarWidget->GetUserWidgetObject());
+    if (nullptr != CharacterWidget)
+    {
+        CharacterWidget->BindCharacterStat(CharacterStat);
+    }
 }
 
 // Called every frame
@@ -112,12 +118,6 @@ void AJHCharacter::PostInitializeComponents()
         JHAnim->SetDeadAnim();
         SetActorEnableCollision(false);
     });
-
-    UJHCharacterWidget* CharacterWidget = Cast<UJHCharacterWidget>(HPBarWidget->GetUserWidgetObject());
-    if (CharacterWidget)
-    {
-        CharacterWidget->BindCharacterStat(CharacterStat);
-    }
 }
 
 // Called to bind functionality to input

@@ -14,6 +14,13 @@ class PROJECTCJH_API UJHCharacterWidget : public UUserWidget
 public:
 	void BindCharacterStat(class UJHCharacterStatComponent* NewCharacterStat);
 
+protected:
+	virtual void NativeConstruct() override;
+	void UpdateHPWidget();
+
 private:
 	TWeakObjectPtr<class UJHCharacterStatComponent> CurrentCharacterStat;
+
+	UPROPERTY()
+	class UProgressBar* HPProgressBar;
 };

@@ -3,16 +3,31 @@
 
 #include "JHCharacterWidget.h"
 #include "JHCharacterStatComponent.h"
+#include "Components/ProgressBar.h"
 
 void UJHCharacterWidget::BindCharacterStat(UJHCharacterStatComponent* NewCharacterStat)
 {
-	JHCHECK(NewCharacterStat);
+	JHCHECK((nullptr != NewCharacterStat));
 
 	CurrentCharacterStat = NewCharacterStat;
-	NewCharacterStat->OnHPChanged.AddLambda([this]() ->void {
-		if (CurrentCharacterStat.IsValid())
+	NewCharacterStat->OnHPChanged.AddUObject(this, &UJHCharacterWidget::UpdateHPWidget);
+}
+
+void UJHCharacterWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("PB_HPBar")));
+	JHCHECK(HPProgressBar);
+	UpdateHPWidget();
+}
+
+void UJHCharacterWidget::UpdateHPWidget()
+{
+	if (CurrentCharacterStat.IsValid())
+	{
+		if (nullptr != HPProgressBar)
 		{
-			JHLOG(Warning, TEXT("HPRatio: %f"), CurrentCharacterStat->GetHPRatio());
+			HPProgressBar->SetPercent(CurrentCharacterStat->GetHPRatio());
 		}
-	});
+	}
 }

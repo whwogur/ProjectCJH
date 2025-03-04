@@ -63,14 +63,14 @@ void UJHCharacterStatComponent::SetHP(float NewHP)
 
 float UJHCharacterStatComponent::GetAttack()
 {
-	JHCHECK(CurrentStatData, 0.0f);
+	JHCHECK((nullptr != CurrentStatData), 0.0f);
 
 	return CurrentStatData->Attack;
 }
 
 float UJHCharacterStatComponent::GetHPRatio()
 {
-	JHCHECK(CurrentStatData, 0.0f);
+	JHCHECK((nullptr != CurrentStatData), 0.0f);
 
 	return (CurrentStatData->MaxHP < KINDA_SMALL_NUMBER) ? 0.0f : (CurrentHP / CurrentStatData->MaxHP);
 }
