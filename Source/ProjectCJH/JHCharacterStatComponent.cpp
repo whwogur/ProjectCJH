@@ -36,7 +36,7 @@ void UJHCharacterStatComponent::SetNewLevel(int32 NewLevel)
 	if (CurrentStatData)
 	{
 		Level = NewLevel;
-		CurrentHP = CurrentStatData->MaxHP;
+		SetHP(CurrentStatData->MaxHP);
 	}
 	else
 	{
@@ -47,9 +47,16 @@ void UJHCharacterStatComponent::SetNewLevel(int32 NewLevel)
 void UJHCharacterStatComponent::SetDamage(float NewDamage)
 {
 	JHCHECK(CurrentStatData);
-	CurrentHP = FMath::Clamp<float>(CurrentHP - NewDamage, 0.0f, CurrentStatData->MaxHP);
-	if (CurrentHP <= 0.0f)
+	SetHP(FMath::Clamp<float>(CurrentHP - NewDamage, 0.0f, CurrentStatData->MaxHP));
+}
+
+void UJHCharacterStatComponent::SetHP(float NewHP)
+{
+	CurrentHP = NewHP;
+	OnHPChanged.Broadcast();
+	if (CurrentHP < KINDA_SMALL_NUMBER)
 	{
+		CurrentHP = 0.0f;
 		OnHPIsZero.Broadcast();
 	}
 }
@@ -59,6 +66,13 @@ float UJHCharacterStatComponent::GetAttack()
 	JHCHECK(CurrentStatData, 0.0f);
 
 	return CurrentStatData->Attack;
+}
+
+float UJHCharacterStatComponent::GetHPRatio()
+{
+	JHCHECK(CurrentStatData, 0.0f);
+
+	return (CurrentStatData->MaxHP < KINDA_SMALL_NUMBER) ? 0.0f : (CurrentHP / CurrentStatData->MaxHP);
 }
 
 

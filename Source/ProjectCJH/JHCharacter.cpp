@@ -10,6 +10,8 @@
 #include "JHWeapon.h"
 #include "JHCharacterStatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/WidgetComponent.h"
+#include "JHCharacterWidget.h"
 
 // Sets default values
 AJHCharacter::AJHCharacter()
@@ -25,9 +27,11 @@ AJHCharacter::AJHCharacter()
     SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
     CharacterStat = CreateDefaultSubobject<UJHCharacterStatComponent>(TEXT("CHARACTERSTAT"));
+    HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBARWIDGET"));
 
     SpringArm->SetupAttachment(GetCapsuleComponent());
     Camera->SetupAttachment(SpringArm);
+    HPBarWidget->SetupAttachment(GetMesh());
 
     GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.f, 0.0f));
     GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
@@ -38,6 +42,15 @@ AJHCharacter::AJHCharacter()
     SpringArm->bDoCollisionTest = true;
     SpringArm->TargetArmLength = 450.0f;
     SpringArm->bUsePawnControlRotation = true;
+
+    HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
+    HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+    static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/UI/UI_HPBar.UI_HPBar_C"));
+    if (UI_HUD.Succeeded())
+    {
+        HPBarWidget->SetWidgetClass(UI_HUD.Class);
+        HPBarWidget->SetDrawSize(FVector2D(150.0f, 50.0f));
+    }
 
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.f, 0.0f);
@@ -84,10 +97,8 @@ void AJHCharacter::PostInitializeComponents()
     JHAnim = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
     JHCHECK(JHAnim);
 
-    JHLOG(Warning, TEXT("Binding OnMontageEnded"));
     JHAnim->OnMontageEnded.AddDynamic(this, &AJHCharacter::OnAttackMontageEnded);
     JHAnim->OnNextAttackCheck.AddLambda([this]() -> void {
-        JHLOG(Warning, TEXT("OnNextAttackCheck"));
         CanExecuteNextCombo = false;
         if (IsComboInputOn)
         {
@@ -98,18 +109,21 @@ void AJHCharacter::PostInitializeComponents()
     JHAnim->OnApplyDamage.AddUObject(this, &AJHCharacter::ApplyDamage);
 
     CharacterStat->OnHPIsZero.AddLambda([this]() -> void {
-        JHLOG(Warning, TEXT("OnHPIsZero"));
         JHAnim->SetDeadAnim();
         SetActorEnableCollision(false);
     });
+
+    UJHCharacterWidget* CharacterWidget = Cast<UJHCharacterWidget>(HPBarWidget->GetUserWidgetObject());
+    if (CharacterWidget)
+    {
+        CharacterWidget->BindCharacterStat(CharacterStat);
+    }
 }
 
 // Called to bind functionality to input
 void AJHCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-    JHLOG(Warning, TEXT("Setting up Player Input Component"));
 
     if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
     {
@@ -176,7 +190,6 @@ void AJHCharacter::OnAttackAction(const FInputActionValue& Value)
 {
     if (Value.Get<bool>())
     {
-        JHLOG(Error, TEXT("Combo: %d"), CurrentCombo);
         if (IsAttacking)
         {
             JHCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
@@ -200,7 +213,6 @@ void AJHCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted
 {
     JHCHECK(IsAttacking);
     JHCHECK((CurrentCombo > 0));
-    JHLOG(Warning, TEXT("Attack Ended"));
     IsAttacking = false;
     AttackEndComboState();
 }

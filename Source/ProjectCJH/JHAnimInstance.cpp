@@ -48,7 +48,6 @@ void UJHAnimInstance::JumpToAttackMontageSection(int32 NewSection)
 
 void UJHAnimInstance::AnimNotify_ApplyDamage()
 {
-	JHLOG_S(Warning);
 	OnApplyDamage.Broadcast();
 }
 
