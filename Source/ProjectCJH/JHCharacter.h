@@ -52,6 +52,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	class AJHWeapon* CurrentWeapon;
+
+	UPROPERTY(VisibleAnywhere, Category = "Stat")
+	class UJHCharacterStatComponent* CharacterStat;
 private:
 	void OnJumpAction(const FInputActionValue& Value);
 	void OnLookAction(const FInputActionValue& Value);

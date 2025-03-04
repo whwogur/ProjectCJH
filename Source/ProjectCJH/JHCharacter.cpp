@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/DamageEvents.h"
 #include "JHWeapon.h"
+#include "JHCharacterStatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -23,6 +24,7 @@ AJHCharacter::AJHCharacter()
 
     SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
+    CharacterStat = CreateDefaultSubobject<UJHCharacterStatComponent>(TEXT("CHARACTERSTAT"));
 
     SpringArm->SetupAttachment(GetCapsuleComponent());
     Camera->SetupAttachment(SpringArm);
@@ -94,6 +96,12 @@ void AJHCharacter::PostInitializeComponents()
         }
     });
     JHAnim->OnApplyDamage.AddUObject(this, &AJHCharacter::ApplyDamage);
+
+    CharacterStat->OnHPIsZero.AddLambda([this]() -> void {
+        JHLOG(Warning, TEXT("OnHPIsZero"));
+        JHAnim->SetDeadAnim();
+        SetActorEnableCollision(false);
+    });
 }
 
 // Called to bind functionality to input
@@ -252,7 +260,7 @@ void AJHCharacter::ApplyDamage()
         }
 
         FDamageEvent DamageEvent;
-        HitResult.GetActor()->TakeDamage(50.0f, DamageEvent, GetController(), this);
+        HitResult.GetActor()->TakeDamage(CharacterStat->GetAttack(), DamageEvent, GetController(), this);
     }
 }
 
@@ -287,10 +295,6 @@ float AJHCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
     float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
     JHLOG(Warning, TEXT("Actor: %s took Damage: %f"), *GetName(), FinalDamage);
 
-    if (FinalDamage > 0.0f)
-    {
-        JHAnim->SetDeadAnim();
-        SetActorEnableCollision(false);
-    }
+    CharacterStat->SetDamage(FinalDamage);
     return FinalDamage;
 }
