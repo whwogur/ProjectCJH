@@ -5,6 +5,7 @@
 #include "ProjectCJH.h"
 #include "Engine/GameInstance.h"
 #include "Engine/DataTable.h"
+#include "Engine/StreamableManager.h"
 #include "JHGameInstance.generated.h"
 
 USTRUCT(BlueprintType)
@@ -51,6 +52,7 @@ public:
 public:
 	FJHCharacterData* GetJHCharacterData(int32 Level);
 
+	FStreamableManager StreamableManager;
 private:
 	UPROPERTY()
 	class UDataTable* JHCharacterTable;

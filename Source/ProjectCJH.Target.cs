@@ -10,6 +10,6 @@ public class ProjectCJHTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
-		ExtraModuleNames.Add("ProjectCJH");
+		ExtraModuleNames.AddRange( new string[] { "ProjectCJH", "ProjectCJHSetting" });
 	}
 }

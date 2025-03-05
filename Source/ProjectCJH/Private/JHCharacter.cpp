@@ -13,6 +13,7 @@
 #include "Components/WidgetComponent.h"
 #include "JHCharacterWidget.h"
 #include "JHAIController.h"
+//#include "JHGameInstance.h"
 
 // Sets default values
 AJHCharacter::AJHCharacter()
@@ -21,6 +22,7 @@ AJHCharacter::AJHCharacter()
     , MaxCombo(3)
     , AttackRange(200.0f)
     , AttackRadius(50.0f)
+    , CharacterAssetToLoad(FSoftObjectPath(nullptr))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;

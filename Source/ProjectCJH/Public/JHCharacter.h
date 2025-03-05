@@ -67,6 +67,7 @@ private:
 	void OnLookAction(const FInputActionValue& Value);
 	void OnMoveAction(const FInputActionValue& Value);
 	void OnAttackAction(const FInputActionValue& Value);
+	//void OnAssetLoadCompleted();
 
 	UFUNCTION(BlueprintCallable)
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -98,4 +99,7 @@ private:
 	
 	UPROPERTY()
 	class UJHAnimInstance* JHAnim;
+
+	FSoftObjectPath CharacterAssetToLoad;
+	TSharedPtr<struct FStreamableHandle> AssetStreamingHandle;
 };
