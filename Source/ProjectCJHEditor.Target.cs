@@ -10,6 +10,6 @@ public class ProjectCJHEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
-		ExtraModuleNames.Add("ProjectCJH");
+		ExtraModuleNames.AddRange( new string[] { "ProjectCJH", "ProjectCJHSetting" });
 	}
 }

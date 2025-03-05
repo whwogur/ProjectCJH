@@ -13,6 +13,7 @@
 #include "Components/WidgetComponent.h"
 #include "JHCharacterWidget.h"
 #include "JHAIController.h"
+//#include "JHGameInstance.h"
 
 // Sets default values
 AJHCharacter::AJHCharacter()
@@ -21,6 +22,7 @@ AJHCharacter::AJHCharacter()
     , MaxCombo(3)
     , AttackRange(200.0f)
     , AttackRadius(50.0f)
+    , CharacterAssetToLoad(FSoftObjectPath(nullptr))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -67,6 +69,13 @@ AJHCharacter::AJHCharacter()
 
     AIControllerClass = AJHAIController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+    // µðÆúÆ® Anim
+    static ConstructorHelpers::FClassFinder<UAnimInstance> ABP_CHARACTER(TEXT("/Game/Player/ABP_JHCharacter.ABP_JHCharacter_C"));
+    if (ABP_CHARACTER.Succeeded())
+    {
+        GetMesh()->SetAnimInstanceClass(ABP_CHARACTER.Class);
+    }
 
     AttackEndComboState();
 }
@@ -157,6 +166,26 @@ void AJHCharacter::SetWeapon(AJHWeapon* NewWeapon)
     }
 }
 
+void AJHCharacter::Attack()
+{
+    if (IsAttacking)
+    {
+        JHCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
+        if (CanExecuteNextCombo)
+        {
+            IsComboInputOn = true;
+        }
+    }
+    else
+    {
+        JHCHECK((0 == CurrentCombo));
+        AttackStartComboState();
+        JHAnim->PlayAttackMontage();
+        JHAnim->JumpToAttackMontageSection(CurrentCombo);
+        IsAttacking = true;
+    }
+}
+
 void AJHCharacter::OnJumpAction(const FInputActionValue& Value)
 {
     bool bJumpPressed = Value.Get<bool>();
@@ -195,22 +224,7 @@ void AJHCharacter::OnAttackAction(const FInputActionValue& Value)
 {
     if (Value.Get<bool>())
     {
-        if (IsAttacking)
-        {
-            JHCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
-            if (CanExecuteNextCombo)
-            {
-                IsComboInputOn = true;
-            }
-        }
-        else
-        {
-            JHCHECK((0 == CurrentCombo));
-            AttackStartComboState();
-            JHAnim->PlayAttackMontage();
-            JHAnim->JumpToAttackMontageSection(CurrentCombo);
-            IsAttacking = true;
-        }
+        Attack();
     }
 }
 
@@ -220,6 +234,7 @@ void AJHCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted
     JHCHECK((CurrentCombo > 0));
     IsAttacking = false;
     AttackEndComboState();
+    OnAttackEnd.Broadcast();
 }
 
 void AJHCharacter::AttackStartComboState()
