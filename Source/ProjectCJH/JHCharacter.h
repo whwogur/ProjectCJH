@@ -10,6 +10,8 @@ class UJHInputData;
 class UInputMappingContext;
 struct FInputActionValue;
 
+DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
+
 UCLASS()
 class PROJECTCJH_API AJHCharacter : public ACharacter
 {
@@ -37,6 +39,8 @@ public:
 public:
 	bool CanSetWeapon();
 	void SetWeapon(class AJHWeapon* NewWeapon);
+	void Attack();
+	FOnAttackEndDelegate OnAttackEnd;
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputMappingContext* InputMapping;

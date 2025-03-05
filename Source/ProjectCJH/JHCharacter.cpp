@@ -157,6 +157,26 @@ void AJHCharacter::SetWeapon(AJHWeapon* NewWeapon)
     }
 }
 
+void AJHCharacter::Attack()
+{
+    if (IsAttacking)
+    {
+        JHCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
+        if (CanExecuteNextCombo)
+        {
+            IsComboInputOn = true;
+        }
+    }
+    else
+    {
+        JHCHECK((0 == CurrentCombo));
+        AttackStartComboState();
+        JHAnim->PlayAttackMontage();
+        JHAnim->JumpToAttackMontageSection(CurrentCombo);
+        IsAttacking = true;
+    }
+}
+
 void AJHCharacter::OnJumpAction(const FInputActionValue& Value)
 {
     bool bJumpPressed = Value.Get<bool>();
@@ -195,22 +215,7 @@ void AJHCharacter::OnAttackAction(const FInputActionValue& Value)
 {
     if (Value.Get<bool>())
     {
-        if (IsAttacking)
-        {
-            JHCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
-            if (CanExecuteNextCombo)
-            {
-                IsComboInputOn = true;
-            }
-        }
-        else
-        {
-            JHCHECK((0 == CurrentCombo));
-            AttackStartComboState();
-            JHAnim->PlayAttackMontage();
-            JHAnim->JumpToAttackMontageSection(CurrentCombo);
-            IsAttacking = true;
-        }
+        Attack();
     }
 }
 
@@ -220,6 +225,7 @@ void AJHCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted
     JHCHECK((CurrentCombo > 0));
     IsAttacking = false;
     AttackEndComboState();
+    OnAttackEnd.Broadcast();
 }
 
 void AJHCharacter::AttackStartComboState()
