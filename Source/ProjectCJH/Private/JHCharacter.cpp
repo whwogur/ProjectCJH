@@ -70,6 +70,13 @@ AJHCharacter::AJHCharacter()
     AIControllerClass = AJHAIController::StaticClass();
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
+    // µðÆúÆ® Anim
+    static ConstructorHelpers::FClassFinder<UAnimInstance> ABP_CHARACTER(TEXT("/Game/Player/ABP_JHCharacter.ABP_JHCharacter_C"));
+    if (ABP_CHARACTER.Succeeded())
+    {
+        GetMesh()->SetAnimInstanceClass(ABP_CHARACTER.Class);
+    }
+
     AttackEndComboState();
 }
 

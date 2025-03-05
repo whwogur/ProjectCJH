@@ -32,11 +32,14 @@ private:
 	
 	void OperatePortal(bool bOpen = true);
 
+	void OnNPCSpawn();
+
 	UFUNCTION()
 	void OnMapTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void OnPortalTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Mesh", Meta=(AllowPrivateAccess = true))
 	UStaticMeshComponent* Mesh;
@@ -52,4 +55,13 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "State", Meta = (AllowPrivateAccess = true))
 	bool bNoBattle;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn", Meta = (AllowPrivateAccess = true))
+	float EnemySpawnTime;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn", Meta = (AllowPrivateAccess = true))
+	float LootBoxSpawnTime;
+
+	FTimerHandle SpawnNPCTimerHandle;
+	FTimerHandle SpawnLootBoxTimerHandle;
 };

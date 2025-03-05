@@ -3,11 +3,16 @@
 
 #include "JHSection.h"
 #include "Engine/OverlapResult.h"
-
+#include "JHCharacter.h"
+#include "LootBox.h"
 // Sets default values
 AJHSection::AJHSection()
 	: CurrentState(ESectionState::READY)
 	, bNoBattle(false)
+	, EnemySpawnTime(2.0f)
+	, LootBoxSpawnTime(5.0f)
+	, SpawnNPCTimerHandle{}
+	, SpawnLootBoxTimerHandle{}
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
@@ -101,6 +106,14 @@ void AJHSection::SetState(ESectionState NewState)
 		}
 
 		OperatePortal(false);
+
+		GetWorld()->GetTimerManager().SetTimer(SpawnNPCTimerHandle, FTimerDelegate::CreateUObject(this, &AJHSection::OnNPCSpawn), EnemySpawnTime, false);
+
+		GetWorld()->GetTimerManager().SetTimer(SpawnLootBoxTimerHandle, FTimerDelegate::CreateLambda([this]() -> void {
+			FVector2D RandXY = FMath::RandPointInCircle(1600.f);
+			GetWorld()->SpawnActor<ALootBox>(GetActorLocation() + FVector(RandXY, 30.0f), FRotator::ZeroRotator);
+		}), LootBoxSpawnTime, false);
+
 		break;
 	}
 	case ESectionState::COMPLETE:
@@ -125,6 +138,11 @@ void AJHSection::OperatePortal(bool bOpen)
 	{
 		Portal->SetRelativeRotation(bOpen ? FRotator(0.0f, -90.0f, 0.0f) : FRotator::ZeroRotator);
 	}
+}
+
+void AJHSection::OnNPCSpawn()
+{
+	GetWorld()->SpawnActor<AJHCharacter>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
 }
 
 void AJHSection::OnMapTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
