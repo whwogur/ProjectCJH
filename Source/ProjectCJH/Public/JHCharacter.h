@@ -6,9 +6,6 @@
 #include "GameFramework/Character.h"
 #include "JHCharacter.generated.h"
 
-class UJHInputData;
-class UInputMappingContext;
-struct FInputActionValue;
 
 DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
@@ -25,35 +22,25 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
 	virtual void StopJumping() override;
-	virtual void AddControllerYawInput(float Val) override;
-	virtual void AddControllerPitchInput(float Val) override;
-	virtual void AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce = false) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Attack();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 public:
 	bool CanSetWeapon();
 	void SetWeapon(class AJHWeapon* NewWeapon);
-	void Attack();
+
 	FOnAttackEndDelegate OnAttackEnd;
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
-	UInputMappingContext* InputMapping;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
-	UJHInputData* InputActions;
-
-	UPROPERTY(VisibleAnywhere, Category = "Camera")
-	USpringArmComponent* SpringArm;
-
-	UPROPERTY(VisibleAnywhere, Category = "Camera")
-	UCameraComponent* Camera;
-
+	bool IsAttacking() { return bAttacking; }
+	void SetAttacking(bool Value) { bAttacking = Value; }
+public:
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	class UWidgetComponent* HPBarWidget;
 
@@ -62,44 +49,23 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Stat")
 	class UJHCharacterStatComponent* CharacterStat;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	class UJHCombatComponent* Combat;
 private:
-	void OnJumpAction(const FInputActionValue& Value);
-	void OnLookAction(const FInputActionValue& Value);
-	void OnMoveAction(const FInputActionValue& Value);
-	void OnAttackAction(const FInputActionValue& Value);
-	//void OnAssetLoadCompleted();
-
-	UFUNCTION(BlueprintCallable)
-	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
-	void AttackStartComboState();
-	void AttackEndComboState();
-	void ApplyDamage();
-private:
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Attack", Meta=(AllowPrivateAccess=true))
-	bool IsAttacking;
-
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
-	bool CanExecuteNextCombo;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
-	bool IsComboInputOn;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
-	int32 CurrentCombo;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
-	int32 MaxCombo;
+	bool bAttacking;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	float AttackRange;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	float AttackRadius;
-	
+private:
 	UPROPERTY()
 	class UJHAnimInstance* JHAnim;
 
 	FSoftObjectPath CharacterAssetToLoad;
 	TSharedPtr<struct FStreamableHandle> AssetStreamingHandle;
+
 };

@@ -6,7 +6,7 @@
 #include "JHCharacter.h"
 
 UBTTask_Attack::UBTTask_Attack()
-	: IsAttacking(false)
+	: bAttacking(false)
 {
 	bNotifyTick = true;
 }
@@ -20,9 +20,9 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Failed;
 
 	Character->Attack();
-	IsAttacking = true;
+	bAttacking = true;
 	Character->OnAttackEnd.AddLambda([this]() -> void {
-		IsAttacking = false;
+		bAttacking = false;
 	});
 
 	return EBTNodeResult::InProgress;
@@ -31,7 +31,7 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-	if (!IsAttacking)
+	if (!bAttacking)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
