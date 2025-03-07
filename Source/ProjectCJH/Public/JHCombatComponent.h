@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "JHCombatComponent.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
 USTRUCT(BlueprintType)
 struct FAttackInfo
@@ -41,4 +42,23 @@ public:
 
 public:
 	void ApplyDamage(const FAttackInfo& AttackInfo);
+
+public:
+	bool CanSetWeapon();
+	void SetWeapon(class AJHWeapon* NewWeapon);
+
+	FOnAttackEndDelegate OnAttackEnd;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	class AJHWeapon* CurrentWeapon;
+public:
+	bool IsAttacking() { return bAttacking; }
+	void SetAttacking(bool Value) { bAttacking = Value; }
+
+	UFUNCTION(BlueprintCallable)
+	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+private:
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	bool bAttacking;
 };

@@ -4,6 +4,7 @@
 #include "LootBox.h"
 #include "JHWeapon.h"
 #include "JHCharacter.h"
+#include "JHICombat.h"
 
 // Sets default values
 ALootBox::ALootBox()
@@ -47,7 +48,7 @@ void ALootBox::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 {
 	JHLOG_S(Warning);
 
-	AJHCharacter* Character = Cast<AJHCharacter>(OtherActor);
+	IJHICombat* Character = Cast<IJHICombat>(OtherActor);
 	JHCHECK(Character);
 
 	if (nullptr != Character && nullptr != WeaponItemClass)
@@ -59,7 +60,7 @@ void ALootBox::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 		}
 		else
 		{
-			JHLOG(Warning, TEXT("%s Can't Equip Weapon"), *Character->GetName());
+			JHLOG(Warning, TEXT("%s Can't Equip Weapon"), *OtherActor->GetName());
 		}
 	}
 }

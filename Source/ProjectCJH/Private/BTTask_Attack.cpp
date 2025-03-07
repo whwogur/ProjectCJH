@@ -3,36 +3,44 @@
 
 #include "BTTask_Attack.h"
 #include "JHAIController.h"
+#include "JHICombat.h"
+#include "JHCombatComponent.h"
 #include "JHCharacter.h"
 
 UBTTask_Attack::UBTTask_Attack()
-	: bAttacking(false)
 {
-	bNotifyTick = true;
+	bNotifyTick = false;
 }
 
 EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
+    EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	AJHCharacter* Character = Cast<AJHCharacter>(OwnerComp.GetAIOwner()->GetPawn());
-	if (nullptr == Character)
-		return EBTNodeResult::Failed;
+    AJHCharacter* Character = Cast<AJHCharacter>(OwnerComp.GetAIOwner()->GetPawn());
+    if (!Character)
+    {
+        return EBTNodeResult::Failed;
+    }
 
-	Character->Attack();
-	bAttacking = true;
-	Character->OnAttackEnd.AddLambda([this]() -> void {
-		bAttacking = false;
-	});
+    UJHCombatComponent* CombatComp = Cast<UJHCombatComponent>(Character->GetComponentByClass(UJHCombatComponent::StaticClass()));
+    if (!CombatComp)
+    {
+        return EBTNodeResult::Failed;
+    }
 
-	return EBTNodeResult::InProgress;
-}
+    IJHICombat* CombatInterface = Cast<IJHICombat>(Character);
+    if (!CombatInterface)
+    {
+        return EBTNodeResult::Failed;
+    }
 
-void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
-{
-	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-	if (!bAttacking)
-	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-	}
+    CombatInterface->Attack();
+
+    // BehaviorTreeComponent에 대한 포인터를 캡처합니다.
+    UBehaviorTreeComponent* BTComp = &OwnerComp;
+    CombatComp->OnAttackEnd.AddLambda([this, BTComp]() -> void {
+        FinishLatentTask(*BTComp, EBTNodeResult::Succeeded);
+    });
+
+    return EBTNodeResult::InProgress;
 }

@@ -4,6 +4,15 @@
 
 #include "EngineMinimal.h"
 
+UENUM(BlueprintType)
+enum class ECharacterState : uint8
+{
+	PREINIT,
+	LOADING,
+	READY,
+	DEAD
+};
+
 DECLARE_LOG_CATEGORY_EXTERN(ProjectCJH, Log, All);
 #define JHLOG_CALLINFO (FString(__FUNCTION__) + TEXT("(") + FString::FromInt(__LINE__) + TEXT(")"))
 #define JHLOG_S(Verbosity) UE_LOG(ProjectCJH, Verbosity, TEXT("%s"), *JHLOG_CALLINFO)
