@@ -24,5 +24,5 @@ public:
 	virtual void Die() = 0;
 
 public:
-	bool CanSetWeapon();
+	virtual bool CanSetWeapon();
 };

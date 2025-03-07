@@ -14,6 +14,8 @@
 #include "Components/WidgetComponent.h"
 #include "JHCharacterWidget.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "JHPlayerState.h"
+#include "JHHUDWidget.h"
 
 AJHPlayerCharacter::AJHPlayerCharacter()
     : CanExecuteNextCombo(false)
@@ -21,23 +23,15 @@ AJHPlayerCharacter::AJHPlayerCharacter()
     , CurrentCombo(0)
     , MaxCombo(3)
 {
+    AssetIndex = 0;
+
+    GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
     Combat = CreateDefaultSubobject<UJHCombatComponent>(TEXT("COMBAT"));
     CharacterStat = CreateDefaultSubobject<UJHCharacterStatComponent>(TEXT("CHARACTERSTAT"));
-    HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBARWIDGET"));
-
-    HPBarWidget->SetupAttachment(GetMesh());
-
-    HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
-    HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
-    static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/UI/UI_HPBar.UI_HPBar_C"));
-    if (UI_HUD.Succeeded())
-    {
-        HPBarWidget->SetWidgetClass(UI_HUD.Class);
-        HPBarWidget->SetDrawSize(FVector2D(150.0f, 50.0f));
-    }
-
+    
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 	Camera->SetupAttachment(SpringArm);
 
@@ -62,7 +56,6 @@ AJHPlayerCharacter::AJHPlayerCharacter()
     }
 
 	AttackEndComboState();
-    HPBarWidget->SetHiddenInGame(true);
 }
 
 void AJHPlayerCharacter::BeginPlay()
@@ -82,11 +75,7 @@ void AJHPlayerCharacter::BeginPlay()
         }
     }
 
-    UJHCharacterWidget* CharacterWidget = Cast<UJHCharacterWidget>(HPBarWidget->GetUserWidgetObject());
-    if (nullptr != CharacterWidget)
-    {
-        CharacterWidget->BindCharacterStat(CharacterStat);
-    }
+    JHPlayerController->GetHUDWidget()->BindCharacterStat(CharacterStat);
 }
 
 // Called to bind functionality to input
@@ -106,27 +95,6 @@ void AJHPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void AJHPlayerCharacter::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
-    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(JHAnimInstance)
-    JHAnimInstance->OnMontageEnded.AddDynamic(Combat, &UJHCombatComponent::OnAttackMontageEnded);
-    JHAnimInstance->OnNextAttackCheck.AddLambda([this, JHAnimInstance]() -> void {
-        CanExecuteNextCombo = false;
-        if (IsComboInputOn)
-        {
-            AttackStartComboState();
-            JHAnimInstance->JumpToAttackMontageSection(CurrentCombo);
-        }
-    });
-
-    JHAnimInstance->OnApplyDamage.AddLambda([this]()
-        {
-            FAttackInfo AttackInfo{}; // TEMP
-            AttackInfo.Damage = CharacterStat->GetAttack();
-            AttackInfo.Radius = 30.0f;
-            AttackInfo.Range = 200.0f;
-
-            Combat->ApplyDamage(AttackInfo);
-        });
 
     Combat->OnAttackEnd.AddUObject(this, &AJHPlayerCharacter::AttackEndComboState);
     CharacterStat->OnHPIsZero.AddUObject(this, &AJHPlayerCharacter::Die);
@@ -137,8 +105,38 @@ float AJHPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
     float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
     JHLOG(Warning, TEXT("Actor: %s took Damage: %f"), *GetName(), FinalDamage);
 
-    CharacterStat->SetDamage(FinalDamage);
+    CharacterStat->SetDamageReceived(FinalDamage);
     return FinalDamage;
+}
+
+void AJHPlayerCharacter::OnAssetLoadCompleted()
+{
+    Super::OnAssetLoadCompleted();
+    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
+    JHCHECK(JHAnimInstance)
+        JHAnimInstance->OnMontageEnded.AddDynamic(Combat, &UJHCombatComponent::OnAttackMontageEnded);
+    JHAnimInstance->OnNextAttackCheck.AddLambda([this, JHAnimInstance]() -> void {
+        CanExecuteNextCombo = false;
+        if (IsComboInputOn)
+        {
+            AttackStartComboState();
+            JHAnimInstance->JumpToAttackMontageSection(CurrentCombo);
+        }
+        });
+
+    JHAnimInstance->OnApplyDamage.AddLambda([this]()
+        {
+            FAttackInfo AttackInfo{}; // TEMP
+            AttackInfo.Damage = CharacterStat->GetAttack();
+            AttackInfo.Radius = 30.0f;
+            AttackInfo.Range = 200.0f;
+
+            Combat->ApplyDamage(AttackInfo);
+    });
+
+    AJHPlayerState* JHPlayerState = Cast<AJHPlayerState>(GetPlayerState());
+    JHCHECK((nullptr != JHPlayerState));
+    CharacterStat->SetNewLevel(JHPlayerState->GetCharacterLevel());
 }
 
 void AJHPlayerCharacter::OnJumpAction(const FInputActionValue& Value)
@@ -252,8 +250,8 @@ void AJHPlayerCharacter::Die()
     if (JHAnimInstance)
     {
         JHAnimInstance->SetDeadAnim();
-        SetActorEnableCollision(false);
     }
+    SetCharacterState(ECharacterState::DEAD);
 }
 
 bool AJHPlayerCharacter::CanSetWeapon()

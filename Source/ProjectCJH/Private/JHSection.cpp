@@ -3,8 +3,9 @@
 
 #include "JHSection.h"
 #include "Engine/OverlapResult.h"
-#include "JHCharacter.h"
+#include "JHEnemyBase.h"
 #include "LootBox.h"
+#include "JHPlayerCharacter.h"
 // Sets default values
 AJHSection::AJHSection()
 	: CurrentState(ESectionState::READY)
@@ -142,7 +143,7 @@ void AJHSection::OperatePortal(bool bOpen)
 
 void AJHSection::OnNPCSpawn()
 {
-	GetWorld()->SpawnActor<AJHCharacter>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
+	GetWorld()->SpawnActor<AJHEnemyBase>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
 }
 
 void AJHSection::OnMapTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -157,35 +158,38 @@ void AJHSection::OnMapTriggerBeginOverlap(UPrimitiveComponent* OverlappedCompone
 
 void AJHSection::OnPortalTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	JHCHECK(OverlappedComponent->ComponentTags.Num() == 1);
-	FName ComponentTag = OverlappedComponent->ComponentTags[0];
-	FName SocketName = FName(*ComponentTag.ToString().Left(2));
-	//JHLOG(Warning, TEXT("ComponentTag: %s, SocketName: %s, OtherActor: %s"), *ComponentTag.ToString(), *SocketName.ToString(), *OtherActor->GetName());
-	if (!Mesh->DoesSocketExist(SocketName))
-		return;
-
-	FVector NewLocation = Mesh->GetSocketLocation(SocketName);
-
-	TArray<FOverlapResult> OverlapResults;
-	FCollisionQueryParams CollisionQueryParam(NAME_None, false, this);
-	FCollisionObjectQueryParams ObjectQueryParam(FCollisionObjectQueryParams::InitType::AllObjects);
-	bool bResult = GetWorld()->OverlapMultiByObjectType(
-		OverlapResults,
-		NewLocation,
-		FQuat::Identity,
-		ObjectQueryParam,
-		FCollisionShape::MakeSphere(1800.f),
-		CollisionQueryParam
-	);
-
-	if (!bResult)
+	if (Cast<AJHPlayerCharacter>(OtherActor))
 	{
-		AJHSection* NewSection = GetWorld()->SpawnActor<AJHSection>(NewLocation, FRotator::ZeroRotator);
-		JHLOG(Warning, TEXT("New Section"));
-	}
-	else
-	{
-		JHLOG(Warning, TEXT("New Section area is not Empty"));
+		JHCHECK(OverlappedComponent->ComponentTags.Num() == 1);
+		FName ComponentTag = OverlappedComponent->ComponentTags[0];
+		FName SocketName = FName(*ComponentTag.ToString().Left(2));
+		//JHLOG(Warning, TEXT("ComponentTag: %s, SocketName: %s, OtherActor: %s"), *ComponentTag.ToString(), *SocketName.ToString(), *OtherActor->GetName());
+		if (!Mesh->DoesSocketExist(SocketName))
+			return;
+
+		FVector NewLocation = Mesh->GetSocketLocation(SocketName);
+
+		TArray<FOverlapResult> OverlapResults;
+		FCollisionQueryParams CollisionQueryParam(NAME_None, false, this);
+		FCollisionObjectQueryParams ObjectQueryParam(FCollisionObjectQueryParams::InitType::AllObjects);
+		bool bResult = GetWorld()->OverlapMultiByObjectType(
+			OverlapResults,
+			NewLocation,
+			FQuat::Identity,
+			ObjectQueryParam,
+			FCollisionShape::MakeSphere(1800.f),
+			CollisionQueryParam
+		);
+
+		if (!bResult)
+		{
+			AJHSection* NewSection = GetWorld()->SpawnActor<AJHSection>(NewLocation, FRotator::ZeroRotator);
+			JHLOG(Warning, TEXT("New Section"));
+		}
+		else
+		{
+			JHLOG(Warning, TEXT("New Section area is not Empty"));
+		}
 	}
 }
 

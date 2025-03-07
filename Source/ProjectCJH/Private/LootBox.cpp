@@ -3,8 +3,7 @@
 
 #include "LootBox.h"
 #include "JHWeapon.h"
-#include "JHCharacter.h"
-#include "JHICombat.h"
+#include "JHPlayerCharacter.h"
 
 // Sets default values
 ALootBox::ALootBox()
@@ -41,16 +40,12 @@ void ALootBox::BeginPlay()
 void ALootBox::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ALootBox::OnCharacterOverlap);
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ALootBox::OnPlayerOverlap);
 }
 
-void ALootBox::OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweeoResult)
+void ALootBox::OnPlayerOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweeoResult)
 {
-	JHLOG_S(Warning);
-
-	IJHICombat* Character = Cast<IJHICombat>(OtherActor);
-	JHCHECK(Character);
-
+	AJHPlayerCharacter* Character = Cast<AJHPlayerCharacter>(OtherActor);
 	if (nullptr != Character && nullptr != WeaponItemClass)
 	{
 		if (Character->CanSetWeapon())

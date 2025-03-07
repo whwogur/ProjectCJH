@@ -44,7 +44,7 @@ void UJHCharacterStatComponent::SetNewLevel(int32 NewLevel)
 	}
 }
 
-void UJHCharacterStatComponent::SetDamage(float NewDamage)
+void UJHCharacterStatComponent::SetDamageReceived(float NewDamage)
 {
 	JHCHECK(CurrentStatData);
 	SetHP(FMath::Clamp<float>(CurrentHP - NewDamage, 0.0f, CurrentStatData->MaxHP));

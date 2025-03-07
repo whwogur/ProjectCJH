@@ -31,6 +31,6 @@ public:
 
 private:
 	UFUNCTION()
-	void OnCharacterOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp
+	void OnPlayerOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp
 		, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweeoResult);
 };

@@ -8,15 +8,26 @@
 #include "InputAction.h"
 #include "JHPlayerController.generated.h"
 
-/**
- * 
- */
+class UJHHUDWidget;
+
 UCLASS()
 class PROJECTCJH_API AJHPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
 public:
+	AJHPlayerController();
+public:
+	UJHHUDWidget* GetHUDWidget() const;
+
+protected:
 	virtual void PostInitializeComponents() override;
     virtual void BeginPlay() override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UJHHUDWidget> HUDWidgetClass;
+
+private:
+	UPROPERTY()
+	UJHHUDWidget* HUDWidget;
 };
