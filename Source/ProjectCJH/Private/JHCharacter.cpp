@@ -5,8 +5,6 @@
 #include "JHAnimInstance.h"
 
 #include "JHCombatComponent.h"
-
-#include "JHAIController.h"
 //#include "JHGameInstance.h"
 
 // Sets default values
@@ -31,9 +29,6 @@ AJHCharacter::AJHCharacter()
     {
         GetMesh()->SetSkeletalMesh(SK_MANNY.Object);
     }
-
-    AIControllerClass = AJHAIController::StaticClass();
-    AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
     // µðÆúÆ® Anim
     static ConstructorHelpers::FClassFinder<UAnimInstance> ABP_CHARACTER(TEXT("/Game/Player/ABP_JHCharacter.ABP_JHCharacter_C"));

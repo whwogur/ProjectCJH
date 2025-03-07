@@ -3,7 +3,7 @@
 
 #include "JHSection.h"
 #include "Engine/OverlapResult.h"
-#include "JHCharacter.h"
+#include "JHEnemyBase.h"
 #include "LootBox.h"
 // Sets default values
 AJHSection::AJHSection()
@@ -142,7 +142,7 @@ void AJHSection::OperatePortal(bool bOpen)
 
 void AJHSection::OnNPCSpawn()
 {
-	GetWorld()->SpawnActor<AJHCharacter>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
+	GetWorld()->SpawnActor<AJHEnemyBase>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
 }
 
 void AJHSection::OnMapTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
