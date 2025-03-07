@@ -19,9 +19,10 @@ public:
 	int32 GetGameScore() const { return GameScore; }
 	int32 GetCharacterLevel() const { return CharacterLevel; }
 	int32 GetPotionCount() const { return Potions; }
+	float GetExpRatio() const;
+	bool AddExp(int32 AccExp);
 
 	void InitPlayerData();
-
 public:
 	FOnPlayerStateChangedDelegate OnPlayerStateChanged;
 
@@ -34,4 +35,11 @@ protected:
 
 	UPROPERTY(Transient)
 	int32 Potions;
+
+	UPROPERTY(Transient)
+	int32 Exp;
+
+private:
+	void SetCharacterLevel(int32 NewCharacterLevel);
+	struct FJHCharacterData* CurrentStatData;
 };

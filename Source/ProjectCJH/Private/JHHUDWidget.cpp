@@ -57,4 +57,5 @@ void UJHHUDWidget::UpdatePlayerState()
 	PlayerLevel->SetText(FText::FromString(FString::FromInt(CurrentPlayerState->GetCharacterLevel())));
 	CurrentScore->SetText(FText::FromString(FString::FromInt(CurrentPlayerState->GetGameScore())));
 	PotionCount->SetText(FText::FromString(FString::FromInt(CurrentPlayerState->GetPotionCount())));
+	ExpBar->SetPercent(CurrentPlayerState->GetExpRatio());
 }

@@ -15,6 +15,7 @@ UJHGameInstance::UJHGameInstance()
 void UJHGameInstance::Init()
 {
 	Super::Init();
+
 }
 
 FJHCharacterData* UJHGameInstance::GetJHCharacterData(int32 Level)

@@ -18,7 +18,7 @@ public:
 	AJHPlayerController();
 public:
 	UJHHUDWidget* GetHUDWidget() const;
-
+	void EnemyKill(class AJHEnemyBase*) const;
 protected:
 	virtual void PostInitializeComponents() override;
     virtual void BeginPlay() override;
@@ -30,4 +30,7 @@ protected:
 private:
 	UPROPERTY()
 	UJHHUDWidget* HUDWidget;
+
+	UPROPERTY()
+	class AJHPlayerState* JHPlayerState;
 };

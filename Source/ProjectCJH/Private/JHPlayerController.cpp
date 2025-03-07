@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "JHHUDWidget.h"
 #include "JHPlayerState.h"
+#include "JHEnemyBase.h"
 
 AJHPlayerController::AJHPlayerController()
 {
@@ -31,13 +32,18 @@ void AJHPlayerController::BeginPlay()
 	HUDWidget = CreateWidget<UJHHUDWidget>(this, HUDWidgetClass);
 	HUDWidget->AddToViewport();
 
-	AJHPlayerState* pState = Cast<AJHPlayerState>(PlayerState);
-	JHCHECK(pState);
-	HUDWidget->BindPlayerState(pState);
-	pState->OnPlayerStateChanged.Broadcast();
+	JHPlayerState = Cast<AJHPlayerState>(PlayerState);
+	JHCHECK(JHPlayerState);
+	HUDWidget->BindPlayerState(JHPlayerState);
+	JHPlayerState->OnPlayerStateChanged.Broadcast();
 }
 
 UJHHUDWidget* AJHPlayerController::GetHUDWidget() const
 {
 	return HUDWidget;
+}
+
+void AJHPlayerController::EnemyKill(AJHEnemyBase* Enemy) const
+{
+	JHPlayerState->AddExp(Enemy->GetExp());
 }
