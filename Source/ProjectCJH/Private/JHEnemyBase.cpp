@@ -10,7 +10,7 @@
 #include "JHCharacterWidget.h"
 #include "JHCombatComponent.h"
 #include "JHCharacterStatComponent.h"
-
+#include "JHPlayerController.h"
 #include "JHWeapon.h"
 
 AJHEnemyBase::AJHEnemyBase()
@@ -84,8 +84,12 @@ void AJHEnemyBase::Die()
     if (JHAnimInstance)
     {
         JHAnimInstance->SetDeadAnim();
-        SetActorEnableCollision(false);
     }
+
+    SetActorEnableCollision(false);
+    JHAIController->StopAI();
+    SetCharacterState(ECharacterState::DEAD);
+    HPBarWidget->SetHiddenInGame(true);
 }
 
 bool AJHEnemyBase::CanSetWeapon()
@@ -99,6 +103,13 @@ float AJHEnemyBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
     JHLOG(Warning, TEXT("Actor: %s took Damage: %f"), *GetName(), FinalDamage);
 
     CharacterStat->SetDamageReceived(FinalDamage);
+    if (CurrentState == ECharacterState::DEAD)
+    {
+        AJHPlayerController* playerController = Cast<AJHPlayerController>(EventInstigator);
+        JHCHECK(playerController, 0.0f);
+        playerController->EnemyKill(this);
+    }
+    
     return FinalDamage;
 }
 
@@ -118,4 +129,9 @@ void AJHEnemyBase::OnAssetLoadCompleted()
 
             Combat->ApplyDamage(AttackInfo);
     });
+}
+
+int32 AJHEnemyBase::GetExp() const
+{
+    return CharacterStat->GetDropExp();
 }

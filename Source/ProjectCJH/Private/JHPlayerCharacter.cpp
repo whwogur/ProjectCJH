@@ -135,7 +135,7 @@ void AJHPlayerCharacter::OnAssetLoadCompleted()
     });
 
     AJHPlayerState* JHPlayerState = Cast<AJHPlayerState>(GetPlayerState());
-    JHCHECK((nullptr != JHPlayerState));
+    JHCHECK(JHPlayerState);
     CharacterStat->SetNewLevel(JHPlayerState->GetCharacterLevel());
 }
 

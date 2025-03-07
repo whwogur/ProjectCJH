@@ -18,6 +18,6 @@ void AJHGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer);
 
 	AJHPlayerState* JHPlayerState = Cast<AJHPlayerState>(NewPlayer->PlayerState);
-	JHCHECK((nullptr != JHPlayerState));
+	JHCHECK(JHPlayerState);
 	JHPlayerState->InitPlayerData();
 }
