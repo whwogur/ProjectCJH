@@ -4,12 +4,12 @@
 #include "JHCharacter.h"
 #include "JHAnimInstance.h"
 
-#include "JHCombatComponent.h"
-//#include "JHGameInstance.h"
-
+#include "JHCharacterSetting.h"
+#include "JHGameInstance.h"
 // Sets default values
 AJHCharacter::AJHCharacter()
     : CharacterAssetToLoad(FSoftObjectPath(nullptr))
+    , AssetIndex(0)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -23,13 +23,6 @@ AJHCharacter::AJHCharacter()
     GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
     GetCapsuleComponent()->SetCollisionProfileName(TEXT("JHCharacter"));
 
-    // 디폴트 스켈메쉬
-    static ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_MANNY(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny"));
-    if (SK_MANNY.Succeeded())
-    {
-        GetMesh()->SetSkeletalMesh(SK_MANNY.Object);
-    }
-
     // 디폴트 Anim
     static ConstructorHelpers::FClassFinder<UAnimInstance> ABP_CHARACTER(TEXT("/Game/Player/ABP_JHCharacter.ABP_JHCharacter_C"));
     if (ABP_CHARACTER.Succeeded())
@@ -37,6 +30,54 @@ AJHCharacter::AJHCharacter()
         GetMesh()->SetAnimInstanceClass(ABP_CHARACTER.Class);
     }
 
-    //SetActorHiddenInGame(true);
-    //SetCanBeDamaged(false);
+    SetCharacterState(ECharacterState::LOADING);
+}
+
+void AJHCharacter::BeginPlay()
+{
+    Super::BeginPlay();
+    auto DefaultSetting = GetDefault<UJHCharacterSetting>();
+
+    CharacterAssetToLoad = DefaultSetting->CharacterAssets[AssetIndex];
+    UJHGameInstance* JHGameInstace = Cast<UJHGameInstance>(GetGameInstance());
+    JHCHECK(JHGameInstace);
+    AssetStreamingHandle = JHGameInstace->StreamableManager.RequestAsyncLoad(CharacterAssetToLoad, FStreamableDelegate::CreateUObject(this, &AJHCharacter::OnAssetLoadCompleted));
+}
+
+void AJHCharacter::SetCharacterState(ECharacterState NewState)
+{
+    JHCHECK((CurrentState != NewState));
+    CurrentState = NewState;
+
+    switch (CurrentState)
+    {
+    case ECharacterState::LOADING:
+    {
+        SetActorHiddenInGame(true);
+        SetCanBeDamaged(false);
+        break;
+    }
+    case ECharacterState::READY:
+    {
+        SetActorHiddenInGame(false);
+        SetCanBeDamaged(true);
+        break;
+    }
+    case ECharacterState::DEAD:
+    {
+        SetActorEnableCollision(false);
+        SetCanBeDamaged(false);
+        break;
+    }
+    }
+}
+
+void AJHCharacter::OnAssetLoadCompleted()
+{
+    AssetStreamingHandle->ReleaseHandle();
+    TSoftObjectPtr<USkeletalMesh> LoadedAssetPath(CharacterAssetToLoad);
+    JHCHECK(LoadedAssetPath.IsValid());
+
+    GetMesh()->SetSkeletalMesh(LoadedAssetPath.Get());
+    SetCharacterState(ECharacterState::READY);
 }

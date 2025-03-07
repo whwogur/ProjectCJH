@@ -25,17 +25,21 @@ protected:
 	virtual void AddControllerPitchInput(float Val) override;
 	virtual void AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce = false) override;
 
-public:// Combat Interface
+// =================
+// Combat Interface
+// =================
+public:
 	virtual void SetWeapon(AJHWeapon* NewWeapon) override;
 	virtual void Attack() override;
 	virtual void Die() override;
 	
-	bool CanSetWeapon();
+	virtual bool CanSetWeapon();
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PostInitializeComponents() override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual void OnAssetLoadCompleted() override;
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputMappingContext* InputMapping;

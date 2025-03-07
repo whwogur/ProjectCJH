@@ -15,6 +15,9 @@
 
 AJHEnemyBase::AJHEnemyBase()
 {
+    AssetIndex = 0;
+
+
     Combat = CreateDefaultSubobject<UJHCombatComponent>(TEXT("COMBAT"));
     CharacterStat = CreateDefaultSubobject<UJHCharacterStatComponent>(TEXT("CHARACTERSTAT"));
     HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBARWIDGET"));
@@ -51,19 +54,7 @@ void AJHEnemyBase::BeginPlay()
 void AJHEnemyBase::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
-    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(JHAnimInstance)
-        JHAnimInstance->OnMontageEnded.AddDynamic(Combat, &UJHCombatComponent::OnAttackMontageEnded);
-
-    JHAnimInstance->OnApplyDamage.AddLambda([this]()
-        {
-            FAttackInfo AttackInfo{}; // TEMP
-            AttackInfo.Damage = CharacterStat->GetAttack();
-            AttackInfo.Radius = 30.0f;
-            AttackInfo.Range = 200.0f;
-
-            Combat->ApplyDamage(AttackInfo);
-        });
+    
 
     CharacterStat->OnHPIsZero.AddUObject(this, &AJHEnemyBase::Die);
 }
@@ -109,4 +100,22 @@ float AJHEnemyBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 
     CharacterStat->SetDamage(FinalDamage);
     return FinalDamage;
+}
+
+void AJHEnemyBase::OnAssetLoadCompleted()
+{
+    Super::OnAssetLoadCompleted();
+    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
+    JHCHECK(JHAnimInstance)
+        JHAnimInstance->OnMontageEnded.AddDynamic(Combat, &UJHCombatComponent::OnAttackMontageEnded);
+
+    JHAnimInstance->OnApplyDamage.AddLambda([this]()
+        {
+            FAttackInfo AttackInfo{}; // TEMP
+            AttackInfo.Damage = CharacterStat->GetAttack();
+            AttackInfo.Radius = 30.0f;
+            AttackInfo.Range = 200.0f;
+
+            Combat->ApplyDamage(AttackInfo);
+    });
 }

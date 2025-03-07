@@ -16,15 +16,20 @@ class PROJECTCJH_API AJHCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AJHCharacter();
-	void SetCharacterState(ECharacterState NewState) { CurrentState = NewState; };
+
+protected:
+	virtual void BeginPlay() override;
+public:
+	void SetCharacterState(ECharacterState NewState);
 	ECharacterState GetCharacterState() const { return CurrentState; }
 
+	virtual void OnAssetLoadCompleted();
 public:
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = "State", Meta = (AllowPrivateAccess = true))
 	ECharacterState CurrentState;
 
-private:
+protected:
 	FSoftObjectPath CharacterAssetToLoad;
 	TSharedPtr<struct FStreamableHandle> AssetStreamingHandle;
-
+	uint8 AssetIndex;
 };

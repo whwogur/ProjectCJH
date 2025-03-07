@@ -18,17 +18,19 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
-
-public:// Combat Interface
+// =================
+// Combat Interface
+// =================
+public:
 	virtual void SetWeapon(AJHWeapon* NewWeapon) override;
 	virtual void Attack() override;
 	virtual void Die() override;
 
-	bool CanSetWeapon();
+	virtual bool CanSetWeapon();
 
 public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
+	virtual void OnAssetLoadCompleted() override;
 public:
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	class UWidgetComponent* HPBarWidget;

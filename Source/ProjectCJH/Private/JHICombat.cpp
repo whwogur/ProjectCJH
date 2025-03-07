@@ -7,5 +7,5 @@
 
 bool IJHICombat::CanSetWeapon()
 {
-    return false;
+	return false;
 }

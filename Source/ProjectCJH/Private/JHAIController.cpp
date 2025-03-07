@@ -31,10 +31,21 @@ AJHAIController::AJHAIController()
 void AJHAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+	RunAI();
+}
+
+void AJHAIController::OnUnPossess()
+{
+	Super::OnUnPossess();
+	GetWorld()->GetTimerManager().ClearTimer(RepeatTimerHandle);
+}
+
+void AJHAIController::RunAI()
+{
 	UBlackboardComponent* BlackboardComp{};
 	if (UseBlackboard(BBAsset, BlackboardComp))
 	{
-		Blackboard->SetValueAsVector(InitialPosKey, InPawn->GetActorLocation());
+		Blackboard->SetValueAsVector(InitialPosKey, GetPawn()->GetActorLocation());
 		if (!RunBehaviorTree(BTAsset))
 		{
 			JHLOG(Error, TEXT("AIController couldn't run behavior tree"));
@@ -43,10 +54,13 @@ void AJHAIController::OnPossess(APawn* InPawn)
 	else JHLOG_S(Warning);
 }
 
-void AJHAIController::OnUnPossess()
+void AJHAIController::StopAI()
 {
-	Super::OnUnPossess();
-	GetWorld()->GetTimerManager().ClearTimer(RepeatTimerHandle);
+	UBehaviorTreeComponent* BTComponent = Cast<UBehaviorTreeComponent>(BrainComponent);
+	if (nullptr != BTComponent)
+	{
+		BTComponent->StopTree(EBTStopMode::Safe);
+	}
 }
 
 void AJHAIController::OnRepeatTimer()
