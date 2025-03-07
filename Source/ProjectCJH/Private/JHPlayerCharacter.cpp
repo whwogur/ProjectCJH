@@ -14,6 +14,9 @@
 #include "Components/WidgetComponent.h"
 #include "JHCharacterWidget.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "JHPlayerState.h"
+#include "JHHUDWidget.h"
+
 AJHPlayerCharacter::AJHPlayerCharacter()
     : CanExecuteNextCombo(false)
     , IsComboInputOn(false)
@@ -22,24 +25,13 @@ AJHPlayerCharacter::AJHPlayerCharacter()
 {
     AssetIndex = 0;
 
+    GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
     Combat = CreateDefaultSubobject<UJHCombatComponent>(TEXT("COMBAT"));
     CharacterStat = CreateDefaultSubobject<UJHCharacterStatComponent>(TEXT("CHARACTERSTAT"));
-    HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBARWIDGET"));
-
-    HPBarWidget->SetupAttachment(GetMesh());
-
-    HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
-    HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
-    static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/UI/UI_HPBar.UI_HPBar_C"));
-    if (UI_HUD.Succeeded())
-    {
-        HPBarWidget->SetWidgetClass(UI_HUD.Class);
-        HPBarWidget->SetDrawSize(FVector2D(150.0f, 50.0f));
-    }
-
+    
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 	Camera->SetupAttachment(SpringArm);
 
@@ -83,11 +75,7 @@ void AJHPlayerCharacter::BeginPlay()
         }
     }
 
-    UJHCharacterWidget* CharacterWidget = Cast<UJHCharacterWidget>(HPBarWidget->GetUserWidgetObject());
-    if (nullptr != CharacterWidget)
-    {
-        CharacterWidget->BindCharacterStat(CharacterStat);
-    }
+    JHPlayerController->GetHUDWidget()->BindCharacterStat(CharacterStat);
 }
 
 // Called to bind functionality to input
@@ -117,7 +105,7 @@ float AJHPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
     float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
     JHLOG(Warning, TEXT("Actor: %s took Damage: %f"), *GetName(), FinalDamage);
 
-    CharacterStat->SetDamage(FinalDamage);
+    CharacterStat->SetDamageReceived(FinalDamage);
     return FinalDamage;
 }
 
@@ -145,6 +133,10 @@ void AJHPlayerCharacter::OnAssetLoadCompleted()
 
             Combat->ApplyDamage(AttackInfo);
     });
+
+    AJHPlayerState* JHPlayerState = Cast<AJHPlayerState>(GetPlayerState());
+    JHCHECK((nullptr != JHPlayerState));
+    CharacterStat->SetNewLevel(JHPlayerState->GetCharacterLevel());
 }
 
 void AJHPlayerCharacter::OnJumpAction(const FInputActionValue& Value)

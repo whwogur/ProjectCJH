@@ -23,7 +23,7 @@ protected:
 
 public:
 	void SetNewLevel(int32 NewLevel);
-	void SetDamage(float NewDamage);
+	void SetDamageReceived(float NewDamage);
 	void SetHP(float NewHP);
 
 	float GetAttack();

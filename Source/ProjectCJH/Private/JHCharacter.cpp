@@ -15,7 +15,7 @@ AJHCharacter::AJHCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
     GetCharacterMovement()->bOrientRotationToMovement = true;
-    GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+    GetCharacterMovement()->MaxWalkSpeed = 400.0f;
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.f, 0.0f);
     GetCharacterMovement()->JumpZVelocity = 400.0f;
 

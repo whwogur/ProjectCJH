@@ -98,7 +98,7 @@ float AJHEnemyBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
     float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
     JHLOG(Warning, TEXT("Actor: %s took Damage: %f"), *GetName(), FinalDamage);
 
-    CharacterStat->SetDamage(FinalDamage);
+    CharacterStat->SetDamageReceived(FinalDamage);
     return FinalDamage;
 }
 
