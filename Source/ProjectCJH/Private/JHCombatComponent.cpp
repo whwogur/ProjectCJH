@@ -51,3 +51,20 @@ void UJHCombatComponent::ApplyDamage(const FAttackInfo& AttackInfo)
         HitResult.GetActor()->TakeDamage(AttackInfo.Damage, DamageEvent, GetOwner()->GetInstigatorController(), GetOwner());
     }
 }
+// 현재 장착 무기 있는지 여부
+bool UJHCombatComponent::CanSetWeapon()
+{
+    return (nullptr == CurrentWeapon);
+}
+
+void UJHCombatComponent::SetWeapon(AJHWeapon* NewWeapon)
+{
+    JHCHECK((nullptr != NewWeapon && nullptr == CurrentWeapon));
+}
+
+void UJHCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+    JHCHECK(bAttacking);
+    bAttacking = false;
+    OnAttackEnd.Broadcast();
+}

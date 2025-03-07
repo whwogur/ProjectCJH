@@ -12,7 +12,7 @@ class UInputMappingContext;
 struct FInputActionValue;
 
 UCLASS()
-class PROJECTCJH_API AJHPlayerCharacter : public AJHCharacter
+class PROJECTCJH_API AJHPlayerCharacter : public AJHCharacter, public IJHICombat
 {
 	GENERATED_BODY()
 	
@@ -25,12 +25,17 @@ protected:
 	virtual void AddControllerPitchInput(float Val) override;
 	virtual void AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce = false) override;
 
+public:// Combat Interface
+	virtual void SetWeapon(AJHWeapon* NewWeapon) override;
 	virtual void Attack() override;
+	virtual void Die() override;
+	
+	bool CanSetWeapon();
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PostInitializeComponents() override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	virtual void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) override;
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputMappingContext* InputMapping;
@@ -44,6 +49,14 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	UCameraComponent* Camera;
 
+	UPROPERTY(VisibleAnywhere, Category = "UI")
+	class UWidgetComponent* HPBarWidget;
+
+	UPROPERTY(VisibleAnywhere, Category = "Stat")
+	class UJHCharacterStatComponent* CharacterStat;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	class UJHCombatComponent* Combat;
 private:
 	void OnJumpAction(const FInputActionValue& Value);
 	void OnLookAction(const FInputActionValue& Value);
@@ -66,4 +79,7 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	int32 MaxCombo;
+
+	UPROPERTY()
+	class AJHPlayerController* JHPlayerController;
 };
