@@ -128,7 +128,7 @@ void AJHEnemyBase::OnAssetLoadCompleted()
 
     JHAnimInstance->OnApplyDamage.AddLambda([this]()
         {
-            FAttackInfo AttackInfo{}; // TEMP
+            FAttackInfo AttackInfo{};
             AttackInfo.Damage = CharacterStat->GetAttack();
             AttackInfo.Radius = 30.0f;
             AttackInfo.Range = 200.0f;

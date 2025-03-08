@@ -19,13 +19,14 @@ public:
 	inline int32 GetGameScore() const { return GameScore; }
 	inline int32 GetCharacterLevel() const { return CharacterLevel; }
 	inline int32 GetPotionCount() const { return Potions; }
+	void AddGameScore();
 	float GetExpRatio() const;
 	bool AddExp(int32 AccExp);
-	inline void AddGameScore() { ++GameScore; OnPlayerStateChanged.Broadcast(); }
 	void InitPlayerData();
+	void SavePlayerData();
 public:
 	FOnPlayerStateChangedDelegate OnPlayerStateChanged;
-
+	FString SaveSlotName;
 protected:
 	UPROPERTY(Transient)
 	int32 GameScore;

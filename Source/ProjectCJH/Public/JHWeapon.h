@@ -15,12 +15,17 @@ public:
 	// Sets default values for this actor's properties
 	AJHWeapon();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
+public:
+	float GetAttackRange() const { return AttackRange; }
 public:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	UStaticMeshComponent* Weapon;
 
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	float AttackRange;
 };

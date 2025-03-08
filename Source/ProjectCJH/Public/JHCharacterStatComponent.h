@@ -42,4 +42,16 @@ private:
 	// 직렬화에서 제외
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = "Stat", Meta = (AllowPrivateAccess = true))
 	float CurrentHP;
+	// TODO - STATS
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	//float AttackDamageMin;
+	//
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	//float AttackDamageMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	float AttackModifierMin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack", Meta = (AllowPrivateAccess = true))
+	float AttackModifierMax;
 };

@@ -3,14 +3,23 @@
 
 #include "JHPlayerState.h"
 #include "JHGameInstance.h"
+#include "JHSaveGame.h"
 
 AJHPlayerState::AJHPlayerState()
-	: CharacterLevel(1)
+	: SaveSlotName(TEXT("Slot1"))
 	, GameScore(0)
+	, CharacterLevel(1)
 	, Potions(0)
 	, Exp(0)
 	, CurrentStatData(nullptr)
 {
+}
+
+void AJHPlayerState::AddGameScore()
+{
+	++GameScore;
+	OnPlayerStateChanged.Broadcast();
+	SavePlayerData();
 }
 
 float AJHPlayerState::GetExpRatio() const
@@ -47,17 +56,40 @@ bool AJHPlayerState::AddExp(int32 AccExp)
 	}
 
 	OnPlayerStateChanged.Broadcast();
-
+	SavePlayerData();
 	return DidLevelUp;
 }
 
 void AJHPlayerState::InitPlayerData()
 {
-	SetPlayerName(TEXT("Wolf"));
-	SetCharacterLevel(1);
-	GameScore = 0;
+	UJHSaveGame* savedGame = Cast<UJHSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+	if (nullptr == savedGame)
+	{
+		savedGame = GetMutableDefault<UJHSaveGame>();
+	}
+
+
+	SetPlayerName(savedGame->PlayerName);
+	SetCharacterLevel(savedGame->Level);
+	GameScore = savedGame->Score;
 	Potions = 5;
-	Exp = 0;
+	Exp = savedGame->Exp;
+
+	SavePlayerData();
+}
+
+void AJHPlayerState::SavePlayerData()
+{
+	UJHSaveGame* newPlayerData = NewObject<UJHSaveGame>();
+	newPlayerData->PlayerName = GetPlayerName();
+	newPlayerData->Level = CharacterLevel;
+	newPlayerData->Exp = Exp;
+	newPlayerData->Score = GameScore;
+
+	if (UGameplayStatics::SaveGameToSlot(newPlayerData, SaveSlotName, 0))
+	{
+		JHLOG(Error, TEXT("Failed To Save Game"));
+	}
 }
 
 void AJHPlayerState::SetCharacterLevel(int32 NewCharacterLevel)
