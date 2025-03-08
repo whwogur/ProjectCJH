@@ -6,6 +6,7 @@
 #include "JHEnemyBase.h"
 #include "LootBox.h"
 #include "JHPlayerCharacter.h"
+#include "JHGameMode.h"
 // Sets default values
 AJHSection::AJHSection()
 	: CurrentState(ESectionState::READY)
@@ -143,7 +144,13 @@ void AJHSection::OperatePortal(bool bOpen)
 
 void AJHSection::OnNPCSpawn()
 {
-	GetWorld()->SpawnActor<AJHEnemyBase>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
+	GetWorld()->GetTimerManager().ClearTimer(SpawnNPCTimerHandle);
+	AJHEnemyBase* npcEnemy = GetWorld()->SpawnActor<AJHEnemyBase>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
+	JHCHECK(npcEnemy);
+	if (nullptr != npcEnemy)
+	{
+		npcEnemy->OnDestroyed.AddDynamic(this, &AJHSection::OnKeyNPCDestroyed);
+	}
 }
 
 void AJHSection::OnMapTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -191,5 +198,23 @@ void AJHSection::OnPortalTriggerBeginOverlap(UPrimitiveComponent* OverlappedComp
 			JHLOG(Warning, TEXT("New Section area is not Empty"));
 		}
 	}
+}
+
+#include "JHPlayerController.h"
+void AJHSection::OnKeyNPCDestroyed(AActor* DestroyedActor)
+{
+	JHLOG_S(Error);
+
+	AJHCharacter* destroyedNPC = Cast<AJHCharacter>(DestroyedActor);
+	JHCHECK(destroyedNPC);
+	
+	AJHPlayerController* playerController = Cast<AJHPlayerController>(destroyedNPC->LastHitBy);
+	JHCHECK(playerController);
+
+	AJHGameMode* curGameMode = Cast<AJHGameMode>(GetWorld()->GetAuthGameMode());
+	JHCHECK(curGameMode);
+	curGameMode->AddScore(playerController);
+
+	SetState(ESectionState::COMPLETE);
 }
 

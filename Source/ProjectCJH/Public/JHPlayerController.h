@@ -19,6 +19,7 @@ public:
 public:
 	UJHHUDWidget* GetHUDWidget() const;
 	void EnemyKill(class AJHEnemyBase*) const;
+	void AddGameScore() const;
 protected:
 	virtual void PostInitializeComponents() override;
     virtual void BeginPlay() override;

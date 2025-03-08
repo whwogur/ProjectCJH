@@ -14,6 +14,8 @@
 #include "JHWeapon.h"
 
 AJHEnemyBase::AJHEnemyBase()
+    : DeadTimer(5.0f)
+    , DeadTimerHandle{}
 {
     AssetIndex = 0;
 
@@ -90,6 +92,10 @@ void AJHEnemyBase::Die()
     JHAIController->StopAI();
     SetCharacterState(ECharacterState::DEAD);
     HPBarWidget->SetHiddenInGame(true);
+    GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
+        [this]() -> void { Destroy(); })
+    , DeadTimer
+    , false);
 }
 
 bool AJHEnemyBase::CanSetWeapon()
