@@ -100,7 +100,7 @@ bool AJHEnemyBase::CanSetWeapon()
 float AJHEnemyBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
     float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-    JHLOG(Warning, TEXT("Actor: %s took Damage: %f"), *GetName(), FinalDamage);
+    JHLOG_SIMPLE(TEXT("%s took Damage: %d"), *GetName(), FMath::RoundToInt(FinalDamage));
 
     CharacterStat->SetDamageReceived(FinalDamage);
     if (CurrentState == ECharacterState::DEAD)
