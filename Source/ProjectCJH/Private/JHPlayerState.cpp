@@ -5,8 +5,8 @@
 #include "JHGameInstance.h"
 
 AJHPlayerState::AJHPlayerState()
-	: CharacterLevel(1)
-	, GameScore(0)
+	: GameScore(0)
+	, CharacterLevel(1)
 	, Potions(0)
 	, Exp(0)
 	, CurrentStatData(nullptr)

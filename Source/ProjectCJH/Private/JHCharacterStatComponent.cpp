@@ -8,6 +8,8 @@
 UJHCharacterStatComponent::UJHCharacterStatComponent()
 	: CurrentStatData(nullptr)
 	, Level(1)
+	, AttackModifierMin(0.95f)
+	, AttackModifierMax(1.25f)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryComponentTick.bCanEverTick = false;
@@ -64,8 +66,10 @@ void UJHCharacterStatComponent::SetHP(float NewHP)
 float UJHCharacterStatComponent::GetAttack()
 {
 	JHCHECK((nullptr != CurrentStatData), 0.0f);
+	float damageModRand = FMath::RandRange(AttackModifierMin, AttackModifierMax);
+	float finalDamage = damageModRand * CurrentStatData->Attack;
 
-	return CurrentStatData->Attack;
+	return finalDamage;
 }
 
 float UJHCharacterStatComponent::GetHPRatio()

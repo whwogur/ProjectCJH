@@ -3,6 +3,7 @@
 
 #include "JHCombatComponent.h"
 #include "Engine/DamageEvents.h"
+#include "JHWeapon.h"
 // Sets default values for this component's properties
 UJHCombatComponent::UJHCombatComponent()
     : CurrentWeapon(nullptr)
@@ -31,7 +32,7 @@ void UJHCombatComponent::ApplyDamage(const FAttackInfo& AttackInfo)
 #if ENABLE_DRAW_DEBUG
     FVector TraceVec = aForwardVector * AttackInfo.Range;
     FVector Center = aLocation + TraceVec * 0.5f;
-    float HalfHeight = AttackInfo.Range * 0.5f + AttackInfo.Radius;
+    float HalfHeight = (CurrentWeapon == nullptr ? (AttackInfo.Range * 0.5f) : CurrentWeapon->GetAttackRange()) + AttackInfo.Radius;
     FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
     FColor DrawColor = bResult ? FColor::Red : FColor::Green;
     float DebugLifeTime = 2.0f;

@@ -103,7 +103,7 @@ void AJHPlayerCharacter::PostInitializeComponents()
 float AJHPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
     float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-    JHLOG(Warning, TEXT("Actor: %s took Damage: %f"), *GetName(), FinalDamage);
+    JHLOG_SIMPLE(TEXT("Player took Damage: %d"), FMath::RoundToInt(FinalDamage));
 
     CharacterStat->SetDamageReceived(FinalDamage);
     return FinalDamage;
