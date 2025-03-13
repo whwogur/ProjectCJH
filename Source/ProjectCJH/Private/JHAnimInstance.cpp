@@ -3,6 +3,7 @@
 
 #include "JHAnimInstance.h"
 #include "ComboCheckAnimNotify.h"
+#include "KismetAnimationLibrary.h"
 
 UJHAnimInstance::UJHAnimInstance()
 	: CurrentPawnSpeed(0.0f)
@@ -30,7 +31,7 @@ void UJHAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			IsInAir = Character->GetMovementComponent()->IsFalling();
 			FRotator Rotation = Character->GetActorRotation();
-			CurrentPawnDirection = CalculateDirection(Velocity, Rotation);
+			CurrentPawnDirection = UKismetAnimationLibrary::CalculateDirection(Velocity, Rotation);
 		}
 	}
 }

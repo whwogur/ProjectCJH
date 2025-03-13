@@ -42,7 +42,7 @@ AJHEnemyBase::AJHEnemyBase()
 void AJHEnemyBase::BeginPlay()
 {
     Super::BeginPlay();
-    // PlayerController °¡Á®¿À±â
+    // PlayerController Â°Â¡ÃÂ®Â¿Ã€Â±Ã¢
     JHAIController = Cast<AJHAIController>(GetController());
     JHCHECK(JHAIController);
 

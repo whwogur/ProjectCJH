@@ -39,7 +39,6 @@ private:
 	UPROPERTY(EditInstanceOnly, Category = "Stat", Meta = (AllowPrivateAccess = true))
 	int32 Level;
 
-	// 직렬화에서 제외
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = "Stat", Meta = (AllowPrivateAccess = true))
 	float CurrentHP;
 	// TODO - STATS

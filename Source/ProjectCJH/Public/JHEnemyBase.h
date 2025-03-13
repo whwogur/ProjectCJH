@@ -48,7 +48,7 @@ private:
 	UPROPERTY()
 	class AJHAIController* JHAIController;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", Meta=(AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", Meta = (AllowPrivateAccess = true))
 	float DeadTimer;
 
 	FTimerHandle DeadTimerHandle;

@@ -68,7 +68,6 @@ void UJHCharacterStatComponent::SetHP(float NewHP)
 float UJHCharacterStatComponent::GetAttack()
 {
 	JHCHECK((nullptr != CurrentStatData), 0.0f);
-	//float damageRand = FMath::RandRange(AttackDamageMin, AttackDamageMax);
 	float damageModRand = FMath::RandRange(AttackModifierMin, AttackModifierMax);
 	float finalDamage = damageModRand * CurrentStatData->Attack;
 
