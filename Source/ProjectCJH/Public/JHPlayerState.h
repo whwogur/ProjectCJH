@@ -16,16 +16,17 @@ class PROJECTCJH_API AJHPlayerState : public APlayerState
 public:
 	AJHPlayerState();
 
-	int32 GetGameScore() const { return GameScore; }
-	int32 GetCharacterLevel() const { return CharacterLevel; }
-	int32 GetPotionCount() const { return Potions; }
+	inline int32 GetGameScore() const { return GameScore; }
+	inline int32 GetCharacterLevel() const { return CharacterLevel; }
+	inline int32 GetPotionCount() const { return Potions; }
+	void AddGameScore();
 	float GetExpRatio() const;
 	bool AddExp(int32 AccExp);
-
 	void InitPlayerData();
+	void SavePlayerData();
 public:
 	FOnPlayerStateChangedDelegate OnPlayerStateChanged;
-
+	FString SaveSlotName;
 protected:
 	UPROPERTY(Transient)
 	int32 GameScore;

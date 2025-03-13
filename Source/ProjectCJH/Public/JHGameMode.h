@@ -15,5 +15,13 @@ public:
 	AJHGameMode();
 
 public:
+	virtual void PostInitializeComponents() override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
+public:
+	void AddScore(class AJHPlayerController* PlayerController);
+
+private:
+	UPROPERTY()
+	class AJHGameState* JHGameState;
 };

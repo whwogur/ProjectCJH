@@ -26,3 +26,5 @@ DECLARE_LOG_CATEGORY_EXTERN(ProjectCJH, Log, All);
 		return __VA_ARGS__;\
 	}\
 }
+
+#define JHLOG_SIMPLE(Format, ...) FMsg::Logf(__FILE__, __LINE__, ProjectCJH.GetCategoryName(), ELogVerbosity::Log, Format, ##__VA_ARGS__)

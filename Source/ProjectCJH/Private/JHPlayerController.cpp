@@ -47,3 +47,9 @@ void AJHPlayerController::EnemyKill(AJHEnemyBase* Enemy) const
 {
 	JHPlayerState->AddExp(Enemy->GetExp());
 }
+
+void AJHPlayerController::AddGameScore() const
+{
+	JHLOG(Warning, TEXT("AddScore + 1"));
+	JHPlayerState->AddGameScore();
+}

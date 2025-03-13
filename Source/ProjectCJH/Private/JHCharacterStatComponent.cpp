@@ -8,6 +8,8 @@
 UJHCharacterStatComponent::UJHCharacterStatComponent()
 	: CurrentStatData(nullptr)
 	, Level(1)
+	//, AttackDamageMin(7.7f)
+	//, AttackDamageMax(77.7f)
 	, AttackModifierMin(0.95f)
 	, AttackModifierMax(1.25f)
 {

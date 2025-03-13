@@ -42,7 +42,7 @@ AJHEnemyBase::AJHEnemyBase()
 void AJHEnemyBase::BeginPlay()
 {
     Super::BeginPlay();
-    // PlayerController °¡Á®¿À±â
+    // PlayerController Â°Â¡ÃÂ®Â¿Ã€Â±Ã¢
     JHAIController = Cast<AJHAIController>(GetController());
     JHCHECK(JHAIController);
 
@@ -94,8 +94,8 @@ void AJHEnemyBase::Die()
     HPBarWidget->SetHiddenInGame(true);
     GetWorld()->GetTimerManager().SetTimer(DeadTimerHandle, FTimerDelegate::CreateLambda(
         [this]() -> void { Destroy(); })
-        , DeadTimer
-        , false);
+    , DeadTimer
+    , false);
 }
 
 bool AJHEnemyBase::CanSetWeapon()
@@ -128,7 +128,7 @@ void AJHEnemyBase::OnAssetLoadCompleted()
 
     JHAnimInstance->OnApplyDamage.AddLambda([this]()
         {
-            FAttackInfo AttackInfo{}; // TEMP
+            FAttackInfo AttackInfo{};
             AttackInfo.Damage = CharacterStat->GetAttack();
             AttackInfo.Radius = 30.0f;
             AttackInfo.Range = 200.0f;

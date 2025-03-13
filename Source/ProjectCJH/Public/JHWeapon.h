@@ -17,7 +17,6 @@ public:
 
 public:
 	float GetAttackRange() const { return AttackRange; }
-
 public:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	UStaticMeshComponent* Weapon;
