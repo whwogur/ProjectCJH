@@ -2,26 +2,27 @@
 
 
 #include "JHAIController.h"
-#include "NavigationSystem.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
-const FName AJHAIController::InitialPosKey(TEXT("InitialPos"));
+const FName AJHAIController::AttackTargetKey(TEXT("AttackTarget"));
 const FName AJHAIController::PointOfInterestKey(TEXT("PointOfInterest"));
-const FName AJHAIController::TargetKey(TEXT("Target"));
+const FName AJHAIController::AttackRadiusKey(TEXT("AttackRadius"));
+const FName AJHAIController::DefendRadiusKey(TEXT("DefendRadius"));
+const FName AJHAIController::DistanceToTargetKey(TEXT("DistanceToTarget"));
+const FName AJHAIController::AIStateKey(TEXT("AIState"));
 
 AJHAIController::AJHAIController()
-	: RepeatInterval(3.0f)
 {
-	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("/Game/AI/BB_JHCharacter.BB_JHCharacter"));
+	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("/Game/AI/BB_EnemyBase.BB_EnemyBase"));
 	if (BBObject.Succeeded())
 	{
 		BBAsset = BBObject.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("/Game/AI/BT_JHCharacter.BT_JHCharacter"));
+	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("/Game/AI/BT_EnemyMelee.BT_EnemyMelee"));
 	if (BTObject.Succeeded())
 	{
 		BTAsset = BTObject.Object;
@@ -34,18 +35,11 @@ void AJHAIController::OnPossess(APawn* InPawn)
 	RunAI();
 }
 
-void AJHAIController::OnUnPossess()
-{
-	Super::OnUnPossess();
-	GetWorld()->GetTimerManager().ClearTimer(RepeatTimerHandle);
-}
-
 void AJHAIController::RunAI()
 {
 	UBlackboardComponent* BlackboardComp{};
 	if (UseBlackboard(BBAsset, BlackboardComp))
 	{
-		Blackboard->SetValueAsVector(InitialPosKey, GetPawn()->GetActorLocation());
 		if (!RunBehaviorTree(BTAsset))
 		{
 			JHLOG(Error, TEXT("AIController couldn't run behavior tree"));
@@ -63,22 +57,42 @@ void AJHAIController::StopAI()
 	}
 }
 
-void AJHAIController::OnRepeatTimer()
+void AJHAIController::SetAIState(EEnemyState eState)
 {
-	APawn* CurrentPawn = GetPawn();
-	JHCHECK(CurrentPawn);
+	Blackboard->SetValueAsEnum(AIStateKey, static_cast<uint8>(eState));
+}
 
-	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
-	if (nullptr == NavSystem)
+void AJHAIController::SetMovementSpeed(EMovementSpeed eMovementSpeed)
+{
+	ACharacter* ControlledCharacter = Cast<ACharacter>(GetPawn());
+	if (ControlledCharacter)
 	{
-		JHLOG_S(Warning);
-		return;
-	}
-
-	FNavLocation NextLocation;
-	if (NavSystem->GetRandomPointInNavigableRadius(FVector::ZeroVector, 500.0f, NextLocation))
-	{
-		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, NextLocation.Location);
-		JHLOG(Warning, TEXT("Next Location: %s"), *NextLocation.Location.ToString());
+		UCharacterMovementComponent* MovementComp = ControlledCharacter->GetCharacterMovement();
+		if (MovementComp)
+		{
+			switch (eMovementSpeed)
+			{
+			case EMovementSpeed::IDLE:
+			{
+				MovementComp->MaxWalkSpeed = 0.0f;
+				break;
+			}
+			case EMovementSpeed::WALK:
+			{
+				MovementComp->MaxWalkSpeed = 150.0f;
+				break;
+			}
+			case EMovementSpeed::JOG:
+			{
+				MovementComp->MaxWalkSpeed = 250.0f;
+				break;
+			}
+			case EMovementSpeed::SPRINT:
+			{
+				MovementComp->MaxWalkSpeed = 500.0f;
+				break;
+			}
+			}
+		}
 	}
 }

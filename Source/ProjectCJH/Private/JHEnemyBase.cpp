@@ -12,27 +12,40 @@
 #include "JHCharacterStatComponent.h"
 #include "JHPlayerController.h"
 #include "JHWeapon.h"
+#include "JHCombatIndicator.h"
 
 AJHEnemyBase::AJHEnemyBase()
     : DeadTimer(5.0f)
     , DeadTimerHandle{}
+    , CombatIndicatorUI(nullptr)
 {
     AssetIndex = 0;
-
 
     Combat = CreateDefaultSubobject<UJHCombatComponent>(TEXT("COMBAT"));
     CharacterStat = CreateDefaultSubobject<UJHCharacterStatComponent>(TEXT("CHARACTERSTAT"));
     HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBARWIDGET"));
+    CombatIndicator = CreateDefaultSubobject<UWidgetComponent>(TEXT("COMBATINDICATOR"));
 
     HPBarWidget->SetupAttachment(GetMesh());
+    CombatIndicator->SetupAttachment(GetMesh());
 
     HPBarWidget->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
     HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+    CombatIndicator->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
+    CombatIndicator->SetWidgetSpace(EWidgetSpace::Screen);
+
     static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/UI/UI_HPBar.UI_HPBar_C"));
     if (UI_HUD.Succeeded())
     {
         HPBarWidget->SetWidgetClass(UI_HUD.Class);
         HPBarWidget->SetDrawSize(FVector2D(150.0f, 50.0f));
+    }
+
+    static ConstructorHelpers::FClassFinder<UUserWidget> UI_DAMAGE(TEXT("/Game/UI/UI_DamageIndicator.UI_DamageIndicator_C"));
+    if (UI_DAMAGE.Succeeded())
+    {
+        CombatIndicator->SetWidgetClass(UI_DAMAGE.Class);
     }
 
     AIControllerClass = AJHAIController::StaticClass();
@@ -42,7 +55,7 @@ AJHEnemyBase::AJHEnemyBase()
 void AJHEnemyBase::BeginPlay()
 {
     Super::BeginPlay();
-    // PlayerController °¡Á®¿À±â
+    // PlayerController
     JHAIController = Cast<AJHAIController>(GetController());
     JHCHECK(JHAIController);
 
@@ -51,6 +64,13 @@ void AJHEnemyBase::BeginPlay()
     {
         CharacterWidget->BindCharacterStat(CharacterStat);
     }
+
+    UJHCombatIndicator* IndicatorUI = Cast<UJHCombatIndicator>(CombatIndicator->GetUserWidgetObject());
+    if (nullptr != IndicatorUI)
+    {
+        CombatIndicatorUI = IndicatorUI;
+    }
+    JHCHECK(nullptr != CombatIndicatorUI)
 }
 
 void AJHEnemyBase::PostInitializeComponents()
@@ -109,6 +129,8 @@ float AJHEnemyBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
     JHLOG_SIMPLE(TEXT("%s took Damage: %d"), *GetName(), FMath::RoundToInt(FinalDamage));
 
     CharacterStat->SetDamageReceived(FinalDamage);
+    CombatIndicatorUI->SetReceivedDamage(FinalDamage);
+
     if (CurrentState == ECharacterState::DEAD)
     {
         AJHPlayerController* playerController = Cast<AJHPlayerController>(EventInstigator);

@@ -17,7 +17,6 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 	void UpdateHPWidget();
-
 private:
 	TWeakObjectPtr<class UJHCharacterStatComponent> CurrentCharacterStat;
 

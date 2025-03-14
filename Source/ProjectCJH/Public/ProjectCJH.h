@@ -20,7 +20,7 @@ DECLARE_LOG_CATEGORY_EXTERN(ProjectCJH, Log, All);
 #define JHLOG_SIMPLE(Format, ...) FMsg::Logf(__FILE__, __LINE__, ProjectCJH.GetCategoryName(), ELogVerbosity::Log, Format, ##__VA_ARGS__)
 #define JHCHECK(Expr, ...)\
 {\
-	if(!Expr)\
+	if(!(Expr))\
 	{\
 		JHLOG(Error, TEXT("ASSERTION: %s"), TEXT(","#Expr","));\
 		return __VA_ARGS__;\

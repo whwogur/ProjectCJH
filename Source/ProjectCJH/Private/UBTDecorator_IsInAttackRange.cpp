@@ -19,12 +19,14 @@ bool UUBTDecorator_IsInAttackRange::CalculateRawConditionValue(UBehaviorTreeComp
 	if (nullptr == ControllingPawn)
 		return false;
 
-	AJHCharacter* AttackTarget = Cast<AJHCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AJHAIController::TargetKey));
+	AJHCharacter* AttackTarget = Cast<AJHCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AJHAIController::AttackTargetKey));
+
+	float AttackRadius = OwnerComp.GetBlackboardComponent()->GetValueAsFloat(AJHAIController::AttackRadiusKey);
 
 	if (nullptr == AttackTarget)
 		return false;
 
-	bResult = (AttackTarget->GetDistanceTo(ControllingPawn) <= 200.0f);
+	bResult = (AttackTarget->GetDistanceTo(ControllingPawn) <= AttackRadius);
 
 	return bResult;
 }
