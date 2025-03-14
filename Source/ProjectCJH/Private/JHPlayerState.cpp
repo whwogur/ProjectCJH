@@ -86,7 +86,7 @@ void AJHPlayerState::SavePlayerData()
 	newPlayerData->Exp = Exp;
 	newPlayerData->Score = GameScore;
 
-	if (UGameplayStatics::SaveGameToSlot(newPlayerData, SaveSlotName, 0))
+	if (!UGameplayStatics::SaveGameToSlot(newPlayerData, SaveSlotName, 0))
 	{
 		JHLOG(Error, TEXT("Failed To Save Game"));
 	}

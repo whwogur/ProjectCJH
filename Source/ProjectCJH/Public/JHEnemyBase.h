@@ -44,6 +44,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	class UJHCombatComponent* Combat;
 
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	class UWidgetComponent* CombatIndicator;
 private:
 	UPROPERTY()
 	class AJHAIController* JHAIController;
@@ -52,4 +54,7 @@ private:
 	float DeadTimer;
 
 	FTimerHandle DeadTimerHandle;
+
+	UPROPERTY()
+	class UJHCombatIndicator* CombatIndicatorUI;
 };
