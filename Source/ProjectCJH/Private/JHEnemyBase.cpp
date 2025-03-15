@@ -13,6 +13,7 @@
 #include "JHPlayerController.h"
 #include "JHWeapon.h"
 #include "JHCombatIndicator.h"
+#include "JHPatrolRoute.h"
 
 AJHEnemyBase::AJHEnemyBase()
     : DeadTimer(5.0f)
@@ -70,7 +71,8 @@ void AJHEnemyBase::BeginPlay()
     {
         CombatIndicatorUI = IndicatorUI;
     }
-    JHCHECK(nullptr != CombatIndicatorUI)
+    JHCHECK(nullptr != CombatIndicatorUI);
+    JHCHECK(PatrolRoute);
 }
 
 void AJHEnemyBase::PostInitializeComponents()
@@ -162,4 +164,9 @@ void AJHEnemyBase::OnAssetLoadCompleted()
 int32 AJHEnemyBase::GetExp() const
 {
     return CharacterStat->GetDropExp();
+}
+
+AJHPatrolRoute* AJHEnemyBase::GetPatrolRoute()
+{
+    return PatrolRoute;
 }

@@ -2,10 +2,12 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "ProjectCJH.h"
 #include "JHCharacter.h"
 #include "JHICombat.h"
 #include "JHEnemyBase.generated.h"
+
+class AJHPatrolRoute;
 
 UCLASS()
 class PROJECTCJH_API AJHEnemyBase : public AJHCharacter, public IJHICombat
@@ -34,6 +36,7 @@ public:
 
 public:
 	int32 GetExp() const;
+	AJHPatrolRoute* GetPatrolRoute();
 public:
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	class UWidgetComponent* HPBarWidget;
@@ -46,6 +49,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	class UWidgetComponent* CombatIndicator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior")
+	class AJHPatrolRoute* PatrolRoute;
 private:
 	UPROPERTY()
 	class AJHAIController* JHAIController;

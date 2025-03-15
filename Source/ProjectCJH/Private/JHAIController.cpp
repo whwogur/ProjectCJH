@@ -46,13 +46,19 @@ AJHAIController::AJHAIController()
 	SightConfig->LoseSightRadius = 600.0f;
 	SightConfig->PeripheralVisionAngleDegrees = 90.0f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
 	AIPerception->ConfigureSense(*SightConfig);
 
 	// 청각 감각 설정
 	UAISenseConfig_Hearing* HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
 	HearingConfig->HearingRange = 300.0f;
-	HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
+	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
 	AIPerception->ConfigureSense(*HearingConfig);
+
+	AIPerception->SetDominantSense(UAISense_Sight::StaticClass());
 }
 
 void AJHAIController::OnPossess(APawn* InPawn)
@@ -69,7 +75,7 @@ void AJHAIController::OnPossess(APawn* InPawn)
 		AIPerception->OnPerceptionUpdated.AddDynamic(this, &AJHAIController::HandlePerceptionUpdate);
 	}
 
-	// 주기적 확인 타이머 설정 (2초마다 실행)
+	// 주기적 확인 타이머 설정 (3초마다 실행)
 	GetWorld()->GetTimerManager().SetTimer(
 		CheckForgottenTargetTimer,
 		this,
@@ -144,7 +150,7 @@ bool AJHAIController::CanSenseActor(AActor* Actor, EAISense Sense, FAIStimulus& 
 	{
 		return false;
 	}
-
+	JHLOG_SIMPLE(TEXT("Can sense %s"), *Actor->GetName());
 	// 감각 설정 가져오기
 	UAISenseConfig* SenseConfig = nullptr;
 	switch (Sense)
