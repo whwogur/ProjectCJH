@@ -5,6 +5,7 @@
 #include "JHAIController.h"
 #include "JHCharacter.h"
 #include "BehaviorTree\BlackboardComponent.h"
+#include "JHEnemyBase.h"
 
 // ==================
 // BTD IsInAttackRange
@@ -16,22 +17,17 @@ UBTDecorator_IsInAttackRange::UBTDecorator_IsInAttackRange()
 
 bool UBTDecorator_IsInAttackRange::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	bool bResult = Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
-
 	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
-	if (nullptr == ControllingPawn)
+	if (!ControllingPawn)
 		return false;
 
 	AJHCharacter* AttackTarget = Cast<AJHCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AJHAIController::AttackTargetKey));
+	if (!AttackTarget)
+		return false;
 
 	float AttackRadius = OwnerComp.GetBlackboardComponent()->GetValueAsFloat(AJHAIController::AttackRadiusKey);
 
-	if (nullptr == AttackTarget)
-		return false;
-
-	bResult = (AttackTarget->GetDistanceTo(ControllingPawn) <= AttackRadius);
-
-	return bResult;
+	return (AttackTarget->GetDistanceTo(ControllingPawn) <= AttackRadius);
 }
 
 
@@ -45,7 +41,14 @@ UBTDecorator_HasPatrolRoute::UBTDecorator_HasPatrolRoute()
 
 bool UBTDecorator_HasPatrolRoute::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	return false;
+	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
+	if (!ControllingPawn)
+		return false;
+	AJHEnemyBase* ControllingEnemy = Cast<AJHEnemyBase>(ControllingPawn);
+	if (!ControllingEnemy)
+		return false;
+
+	return (nullptr != ControllingEnemy->GetPatrolRoute());
 }
 
 
