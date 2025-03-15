@@ -6,13 +6,15 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "EMovementSpeed.h"
+#include "EEnemyState.h"
 
 const FName AJHAIController::AttackTargetKey(TEXT("AttackTarget"));
 const FName AJHAIController::PointOfInterestKey(TEXT("PointOfInterest"));
 const FName AJHAIController::AttackRadiusKey(TEXT("AttackRadius"));
 const FName AJHAIController::DefendRadiusKey(TEXT("DefendRadius"));
 const FName AJHAIController::DistanceToTargetKey(TEXT("DistanceToTarget"));
-const FName AJHAIController::AIStateKey(TEXT("AIState"));
+const FName AJHAIController::EnemyStateKey(TEXT("EnemyState"));
 
 AJHAIController::AJHAIController()
 {
@@ -32,6 +34,9 @@ AJHAIController::AJHAIController()
 void AJHAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
+	
+	Blackboard->SetValueAsEnum(EnemyStateKey, static_cast<uint8>(EEnemyState::PASSIVE));
+
 	RunAI();
 }
 
@@ -59,7 +64,7 @@ void AJHAIController::StopAI()
 
 void AJHAIController::SetAIState(EEnemyState eState)
 {
-	Blackboard->SetValueAsEnum(AIStateKey, static_cast<uint8>(eState));
+	Blackboard->SetValueAsEnum(EnemyStateKey, static_cast<uint8>(eState));
 }
 
 void AJHAIController::SetMovementSpeed(EMovementSpeed eMovementSpeed)

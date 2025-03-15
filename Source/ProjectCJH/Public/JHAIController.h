@@ -4,19 +4,10 @@
 
 #include "ProjectCJH.h"
 #include "AIController.h"
-#include "EMovementSpeed.h"
 #include "JHAIController.generated.h"
 
-UENUM(BlueprintType)
-enum class EEnemyState : uint8
-{
-	PASSIVE			UMETA(DisplayName = "Passive"),
-	ATTACK			UMETA(DisplayName = "Attack"),
-	STUN			UMETA(DisplayName = "Stun"),
-	INVESTIGATE		UMETA(DisplayName = "Investigate"),
-	DEAD			UMETA(DisplayName = "Dead"),
-	SEEK			UMETA(DisplayName = "Seek"),
-};
+enum class EMovementSpeed : uint8;
+enum class EEnemyState : uint8;
 
 UCLASS()
 class PROJECTCJH_API AJHAIController : public AAIController
@@ -32,7 +23,7 @@ public:
 	static const FName AttackRadiusKey;
 	static const FName DefendRadiusKey;
 	static const FName DistanceToTargetKey;
-	static const FName AIStateKey;
+	static const FName EnemyStateKey;
 
 	void RunAI();
 	void StopAI();
