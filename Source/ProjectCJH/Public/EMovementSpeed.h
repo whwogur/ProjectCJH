@@ -13,3 +13,15 @@ enum class EMovementSpeed : uint8
 	JOG				UMETA(DisplayName = "Jog"),
 	SPRINT			UMETA(DisplayName = "Sprint")
 };
+
+// Behavior Tree에서 사용 가능하도록 구조체 래핑
+USTRUCT(BlueprintType)
+struct FBTMovementSpeed
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+    EMovementSpeed Value;
+
+    FBTMovementSpeed() { Value = EMovementSpeed::IDLE; }
+};

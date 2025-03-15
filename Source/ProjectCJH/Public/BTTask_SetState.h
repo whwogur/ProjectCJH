@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "EMovementSpeed.h"
-#include "BTTask_SetMovementSpeed.generated.h"
+#include "EEnemyState.h"
+#include "BTTask_SetState.generated.h"
 
 UCLASS()
-class PROJECTCJH_API UBTTask_SetMovementSpeed : public UBTTaskNode
+class PROJECTCJH_API UBTTask_SetState : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
-	UBTTask_SetMovementSpeed();
+	UBTTask_SetState();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	FBTMovementSpeed MovementSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State")
+	FBTEnemyState State;
 };

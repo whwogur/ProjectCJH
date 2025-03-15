@@ -1,16 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BTTask_SetMovementSpeed.h"
-#include "EMovementSpeed.h"
+#include "BTTask_ClearFocus.h"
 #include "JHAIController.h"
 
-UBTTask_SetMovementSpeed::UBTTask_SetMovementSpeed()
+UBTTask_ClearFocus::UBTTask_ClearFocus()
 {
-	NodeName = "Set Movement Speed";
+    NodeName = "Clear Focus";
 }
 
-EBTNodeResult::Type UBTTask_SetMovementSpeed::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTTask_ClearFocus::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     AJHAIController* AIController = Cast<AJHAIController>(OwnerComp.GetAIOwner());
     if (!AIController)
@@ -18,7 +17,7 @@ EBTNodeResult::Type UBTTask_SetMovementSpeed::ExecuteTask(UBehaviorTreeComponent
         return EBTNodeResult::Failed;
     }
 
-    AIController->SetMovementSpeed(MovementSpeed.Value);
+    AIController->ClearFocus(EAIFocusPriority::Gameplay);
 
     FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
     return EBTNodeResult::Succeeded;

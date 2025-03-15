@@ -4,19 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "EMovementSpeed.h"
-#include "BTTask_SetMovementSpeed.generated.h"
+#include "BTTask_ClearFocus.generated.h"
 
 UCLASS()
-class PROJECTCJH_API UBTTask_SetMovementSpeed : public UBTTaskNode
+class PROJECTCJH_API UBTTask_ClearFocus : public UBTTaskNode
 {
 	GENERATED_BODY()
-
 public:
-	UBTTask_SetMovementSpeed();
+	UBTTask_ClearFocus();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	FBTMovementSpeed MovementSpeed;
 };
