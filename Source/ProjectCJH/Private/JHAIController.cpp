@@ -144,7 +144,7 @@ bool AJHAIController::CanSenseActor(AActor* Actor, EAISense Sense, FAIStimulus& 
 	{
 		return false;
 	}
-
+	JHLOG_SIMPLE(TEXT("Can sense %s"), *Actor->GetName());
 	// 감각 설정 가져오기
 	UAISenseConfig* SenseConfig = nullptr;
 	switch (Sense)
