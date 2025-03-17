@@ -13,6 +13,7 @@ void UEnvQueryContext_AttackTarget::ProvideContext(FEnvQueryInstance& QueryInsta
     AActor* QuerierActor = Cast<AActor>(QueryInstance.Owner.Get());
     if (!QuerierActor)
     {
+        JHLOG_S(Error);
         return;
     }
 
@@ -20,6 +21,7 @@ void UEnvQueryContext_AttackTarget::ProvideContext(FEnvQueryInstance& QueryInsta
     AAIController* AIController = Cast<AAIController>(QuerierActor->GetInstigatorController());
     if (!AIController)
     {
+        JHLOG_S(Error);
         return;
     }
 

@@ -70,6 +70,7 @@ void AJHAIController::OnPossess(APawn* InPawn)
 	Blackboard->SetValueAsEnum(EnemyStateKey, static_cast<uint8>(EEnemyState::PASSIVE));
 
 	// 퍼셉션 업데이트 이벤트 바인딩
+	JHCHECK(AIPerception);
 	if (AIPerception)
 	{
 		AIPerception->OnPerceptionUpdated.AddDynamic(this, &AJHAIController::HandlePerceptionUpdate);
@@ -106,7 +107,10 @@ void AJHAIController::StopAI()
 
 void AJHAIController::SetAIState(EEnemyState eState)
 {
+	EEnemyState curState = static_cast<EEnemyState>(Blackboard->GetValueAsEnum(EnemyStateKey));
+
 	Blackboard->SetValueAsEnum(EnemyStateKey, static_cast<uint8>(eState));
+	JHLOG_SIMPLE(TEXT("%s ----> %s"), *(StaticEnum<EEnemyState>()->GetValueAsString(curState)),*(StaticEnum<EEnemyState>()->GetValueAsString(eState)));
 }
 
 void AJHAIController::SetMovementSpeed(EMovementSpeed eMovementSpeed)
@@ -150,7 +154,7 @@ bool AJHAIController::CanSenseActor(AActor* Actor, EAISense Sense, FAIStimulus& 
 	{
 		return false;
 	}
-	JHLOG_SIMPLE(TEXT("Can sense %s"), *Actor->GetName());
+	//JHLOG_SIMPLE(TEXT("Can sense %s"), *Actor->GetName());
 	// 감각 설정 가져오기
 	UAISenseConfig* SenseConfig = nullptr;
 	switch (Sense)
@@ -191,13 +195,11 @@ void AJHAIController::HandlePerceptionUpdate(const TArray<AActor*>& UpdatedActor
 		FAIStimulus Stimulus;
 		if (CanSenseActor(Actor, EAISense::Sight, Stimulus))
 		{
-			Blackboard->SetValueAsObject(AttackTargetKey, Actor);
-			SetAIState(EEnemyState::SEEK);
+			HandleSightUpdate(Actor);
 		}
 		else if (CanSenseActor(Actor, EAISense::Hearing, Stimulus))
 		{
-			Blackboard->SetValueAsVector(PointOfInterestKey, Actor->GetActorLocation());
-			SetAIState(EEnemyState::INVESTIGATE);
+			HandleHearingUpdate(Stimulus.StimulusLocation);
 		}
 	}
 }
@@ -217,4 +219,36 @@ void AJHAIController::CheckIfForgottenSeenActor()
 			SetAIState(EEnemyState::PASSIVE);
 		}
 	}
+}
+
+void AJHAIController::HandleSightUpdate(AActor* Actor)
+{
+	EEnemyState curState = static_cast<EEnemyState>(Blackboard->GetValueAsEnum(EnemyStateKey));
+	switch (curState)
+	{
+	case EEnemyState::PASSIVE:
+	case EEnemyState::ATTACK:
+	case EEnemyState::SEEK:
+	case EEnemyState::INVESTIGATE:
+	{
+		Blackboard->SetValueAsObject(AttackTargetKey, Actor);
+		SetAIState(EEnemyState::ATTACK);
+		break;
+	}
+	}// TODO
+	
+}
+
+void AJHAIController::HandleHearingUpdate(const FVector& SoundPos)
+{
+	EEnemyState curState = static_cast<EEnemyState>(Blackboard->GetValueAsEnum(EnemyStateKey));
+	switch (curState)
+	{
+	case EEnemyState::PASSIVE:
+	{
+		Blackboard->SetValueAsVector(PointOfInterestKey, SoundPos);
+		SetAIState(EEnemyState::INVESTIGATE);
+		break;
+	}
+	}// TODO
 }

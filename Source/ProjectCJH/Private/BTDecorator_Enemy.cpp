@@ -12,7 +12,7 @@
 // ==================
 UBTDecorator_IsInAttackRange::UBTDecorator_IsInAttackRange()
 {
-	NodeName = TEXT("IsInAttackRange");
+	NodeName = TEXT("Is In AttackRange w AttackTarget");
 }
 
 bool UBTDecorator_IsInAttackRange::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
@@ -36,7 +36,7 @@ bool UBTDecorator_IsInAttackRange::CalculateRawConditionValue(UBehaviorTreeCompo
 // ==================
 UBTDecorator_HasPatrolRoute::UBTDecorator_HasPatrolRoute()
 {
-	NodeName = TEXT("HasPatrolRoute");
+	NodeName = TEXT("Has Patrol Route");
 }
 
 bool UBTDecorator_HasPatrolRoute::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
@@ -57,7 +57,7 @@ bool UBTDecorator_HasPatrolRoute::CalculateRawConditionValue(UBehaviorTreeCompon
 // ====================
 UBTDecorator_IsWeaponEquipped::UBTDecorator_IsWeaponEquipped()
 {
-	NodeName = TEXT("IsWeaponEquipped");
+	NodeName = TEXT("Is Weapon Equipped");
 }
 
 bool UBTDecorator_IsWeaponEquipped::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
@@ -65,3 +65,26 @@ bool UBTDecorator_IsWeaponEquipped::CalculateRawConditionValue(UBehaviorTreeComp
 	return false;
 }
 #pragma endregion
+
+// ==================
+// BTD IsInDefenseRange
+// ==================
+UBTDecorator_IsInDefenseRange::UBTDecorator_IsInDefenseRange()
+{
+	NodeName = TEXT("Is In DefenseRange w AttackTarget");
+}
+
+bool UBTDecorator_IsInDefenseRange::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
+{
+	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
+	if (!ControllingPawn)
+		return false;
+
+	AJHCharacter* AttackTarget = Cast<AJHCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AJHAIController::AttackTargetKey));
+	if (!AttackTarget)
+		return false;
+
+	float DefenseRadius = OwnerComp.GetBlackboardComponent()->GetValueAsFloat(AJHAIController::DefendRadiusKey);
+
+	return (AttackTarget->GetDistanceTo(ControllingPawn) <= DefenseRadius);
+}

@@ -41,3 +41,15 @@ public:
 protected:
 	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
 };
+
+UCLASS()
+class PROJECTCJH_API UBTDecorator_IsInDefenseRange : public UBTDecorator
+{
+	GENERATED_BODY()
+
+public:
+	UBTDecorator_IsInDefenseRange();
+
+protected:
+	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
+};

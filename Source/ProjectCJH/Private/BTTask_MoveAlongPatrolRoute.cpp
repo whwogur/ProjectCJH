@@ -43,7 +43,6 @@ EBTNodeResult::Type UBTTask_MoveAlongPatrolRoute::ExecuteTask(UBehaviorTreeCompo
         return EBTNodeResult::Failed;
     }
 
-    // 현재 순찰 지점의 세계 위치 가져오기
     FVector Destination = PatrolRoute->GetSplinePointAsWorldPosition();
 
     // AI를 목적지로 이동

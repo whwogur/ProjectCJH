@@ -14,33 +14,40 @@ UBTTask_Attack::UBTTask_Attack()
 
 EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-    EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
+    if (!OwnerComp.GetAIOwner())
+    {
+        return EBTNodeResult::Failed;
+    }
 
+    // AI가 조종하는 캐릭터 가져오기
     AJHCharacter* Character = Cast<AJHCharacter>(OwnerComp.GetAIOwner()->GetPawn());
     if (!Character)
     {
         return EBTNodeResult::Failed;
     }
 
-    UJHCombatComponent* CombatComp = Cast<UJHCombatComponent>(Character->GetComponentByClass(UJHCombatComponent::StaticClass()));
+    // Combat 컴포넌트 가져오기
+    UJHCombatComponent* CombatComp = Character->FindComponentByClass<UJHCombatComponent>();
     if (!CombatComp)
     {
         return EBTNodeResult::Failed;
     }
 
-    IJHICombat* CombatInterface = Cast<IJHICombat>(Character);
-    if (!CombatInterface)
+    // Combat 인터페이스 확인 후 공격 실행
+    if (IJHICombat* CombatInterface = Cast<IJHICombat>(Character))
+    {
+        CombatInterface->Attack();
+    }
+    else
     {
         return EBTNodeResult::Failed;
     }
 
-    CombatInterface->Attack();
-
-    // BehaviorTreeComponent에 대한 포인터를 캡처합니다.
-    UBehaviorTreeComponent* BTComp = &OwnerComp;
-    CombatComp->OnAttackEnd.AddLambda([this, BTComp]() -> void {
-        FinishLatentTask(*BTComp, EBTNodeResult::Succeeded);
-    });
+    // BehaviorTreeComponent 포인터 안전하게 캡처
+    CombatComp->OnAttackEnd.AddWeakLambda(this, [this, &OwnerComp]()
+        {
+            FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+        });
 
     return EBTNodeResult::InProgress;
 }
