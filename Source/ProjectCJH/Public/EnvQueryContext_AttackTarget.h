@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "ProjectCJH.h"
 #include "EnvironmentQuery/EnvQueryContext.h"
 #include "EnvQueryContext_AttackTarget.generated.h"
 

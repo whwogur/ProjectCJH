@@ -48,6 +48,8 @@ public:
 private:
 	// 잊혀진 액터 확인 함수
 	void CheckIfForgottenSeenActor();
+	void HandleSightUpdate(AActor* Actor);
+	void HandleHearingUpdate(const FVector& SoundPos);
 	// 주기적으로 잊혀진 타겟을 확인하기 위한 타이머 핸들
 	FTimerHandle CheckForgottenTargetTimer;
 

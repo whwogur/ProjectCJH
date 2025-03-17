@@ -5,11 +5,13 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "JHCharacter.h"
 #include "JHAIController.h"
+#include "EEnemyState.h"
 
 UBTS_CheckIfEnemyIsDead::UBTS_CheckIfEnemyIsDead()
 {
 	NodeName = "Check If Enemy Is Dead";
     Interval = 1.0f;
+    AttackTargetKey.SelectedKeyName = "AttackTarget";
 }
 
 void UBTS_CheckIfEnemyIsDead::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
