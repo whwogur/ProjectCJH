@@ -69,7 +69,10 @@ bool UBTDecorator_IsWeaponEquipped::CalculateRawConditionValue(UBehaviorTreeComp
 	if (!ControllingEnemy)
 		return false;
 
-	return ControllingEnemy->IsWeaponEquipped();
+	bool weaponEqupped = ControllingEnemy->IsWeaponEquipped();
+
+	JHLOG(Warning, TEXT("WeaponEquipped %s"), weaponEqupped ? TEXT("true") : TEXT("false"));
+	return weaponEqupped;
 }
 
 // ==================

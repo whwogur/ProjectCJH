@@ -168,6 +168,7 @@ void AJHEnemyBase::OnWeaponEquipCompleted(UAnimMontage* Montage, bool bInterrupt
     if (bInterrupted)
         JHLOG(Warning, TEXT("%s interrupted"), *Montage->GetName());
 
+    JHLOG_S(Warning);
     WeaponEquipped = true;
     OnWeaponEquipped.Broadcast();
 }

@@ -41,6 +41,7 @@ EBTNodeResult::Type UBTTask_EquipWeapon::ExecuteTask(UBehaviorTreeComponent& Own
     TWeakObjectPtr<UBehaviorTreeComponent> OwnerCompWeakPtr = &OwnerComp;
     DelegateHandle = Enemy->OnWeaponEquipped.AddLambda([this, OwnerCompWeakPtr]()
         {
+            JHLOG_S(Warning);
             if (OwnerCompWeakPtr.IsValid() && EnemyWeakPtr.IsValid())
             {
                 AJHEnemyBase* EnemyPtr = EnemyWeakPtr.Get();

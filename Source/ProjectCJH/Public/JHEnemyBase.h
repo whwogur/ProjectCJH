@@ -38,7 +38,9 @@ public:
 	virtual void OnAssetLoadCompleted() override;
 	virtual void EquipWeapon() { JHLOG(Error, TEXT("Did Not override EqupWeapon but called by BT")); }
 
+	UFUNCTION()
 	void OnWeaponEquipCompleted(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION()
 	void OnWeaponSheatheCompleted(UAnimMontage* Montage, bool bInterrupted);
 public:
 	bool IsWeaponEquipped() const { return WeaponEquipped; }
