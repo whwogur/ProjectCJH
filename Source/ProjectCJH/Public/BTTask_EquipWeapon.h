@@ -21,3 +21,19 @@ private:
     TWeakObjectPtr<class AJHEnemyBase> EnemyWeakPtr;
     FDelegateHandle DelegateHandle;
 };
+
+UCLASS()
+class PROJECTCJH_API UBTTask_SheatheWeapon : public UBTTaskNode
+{
+    GENERATED_BODY()
+
+public:
+    UBTTask_SheatheWeapon();
+
+    virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+    virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+private:
+    TWeakObjectPtr<class AJHEnemyBase> EnemyWeakPtr;
+    FDelegateHandle DelegateHandle;
+};

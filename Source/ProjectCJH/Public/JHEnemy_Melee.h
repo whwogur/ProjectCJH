@@ -19,6 +19,7 @@ public:
 public:
 	virtual void Attack() override;
 	virtual void EquipWeapon() override;
+	virtual void SheatheWeapon() override;
 
 protected:
 	virtual void PostInitializeComponents() override;

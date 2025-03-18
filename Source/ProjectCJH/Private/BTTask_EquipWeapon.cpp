@@ -4,6 +4,10 @@
 #include "BTTask_EquipWeapon.h"
 #include "AIController.h"
 #include "JHEnemyBase.h"
+
+// ===============
+// BTT EquipWeapon
+// ===============
 UBTTask_EquipWeapon::UBTTask_EquipWeapon()
 {
 	NodeName = "Equip Weapon";
@@ -11,37 +15,96 @@ UBTTask_EquipWeapon::UBTTask_EquipWeapon()
 
 EBTNodeResult::Type UBTTask_EquipWeapon::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-    // AI 컨트롤러 가져오기
     AAIController* AIController = OwnerComp.GetAIOwner();
     if (!AIController)
     {
         return EBTNodeResult::Failed;
     }
 
-    // 제어되는 폰 가져오기
     APawn* Pawn = AIController->GetPawn();
     if (!Pawn)
     {
         return EBTNodeResult::Failed;
     }
 
-    // 폰을 ABP_Enemy_Base_C로 캐스팅
     AJHEnemyBase* Enemy = Cast<AJHEnemyBase>(Pawn);
     if (!Enemy)
     {
         return EBTNodeResult::Failed;
     }
 
-    // 약한 포인터에 적 객체 저장
     EnemyWeakPtr = Enemy;
 
-    // 무기 장착 함수 호출
     Enemy->EquipWeapon();
 
     TWeakObjectPtr<UBehaviorTreeComponent> OwnerCompWeakPtr = &OwnerComp;
     DelegateHandle = Enemy->OnWeaponEquipped.AddLambda([this, OwnerCompWeakPtr]()
         {
-            JHLOG_S(Warning);
+            if (OwnerCompWeakPtr.IsValid() && EnemyWeakPtr.IsValid())
+            {
+                AJHEnemyBase* EnemyPtr = EnemyWeakPtr.Get();
+                UBehaviorTreeComponent* OwnerCompPtr = OwnerCompWeakPtr.Get();
+                if (EnemyPtr && OwnerCompPtr)
+                {
+                    EnemyPtr->OnWeaponEquipped.Remove(DelegateHandle);
+                    FinishLatentTask(*OwnerCompPtr, EBTNodeResult::Succeeded);
+                }
+            }
+        });
+
+    return EBTNodeResult::InProgress;
+}
+
+EBTNodeResult::Type UBTTask_EquipWeapon::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+    if (EnemyWeakPtr.IsValid() && DelegateHandle.IsValid())
+    {
+        AJHEnemyBase* Enemy = EnemyWeakPtr.Get();
+        if (Enemy)
+        {
+            Enemy->OnWeaponEquipped.Remove(DelegateHandle);
+        }
+    }
+
+    return Super::AbortTask(OwnerComp, NodeMemory);
+}
+
+// ===============
+// BTT SheatheWeapon
+// ===============
+
+UBTTask_SheatheWeapon::UBTTask_SheatheWeapon()
+{
+    NodeName = "Sheathe Weapon";
+}
+
+EBTNodeResult::Type UBTTask_SheatheWeapon::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+    AAIController* AIController = OwnerComp.GetAIOwner();
+    if (!AIController)
+    {
+        return EBTNodeResult::Failed;
+    }
+
+    APawn* Pawn = AIController->GetPawn();
+    if (!Pawn)
+    {
+        return EBTNodeResult::Failed;
+    }
+
+    AJHEnemyBase* Enemy = Cast<AJHEnemyBase>(Pawn);
+    if (!Enemy)
+    {
+        return EBTNodeResult::Failed;
+    }
+
+    EnemyWeakPtr = Enemy;
+
+    Enemy->SheatheWeapon();
+
+    TWeakObjectPtr<UBehaviorTreeComponent> OwnerCompWeakPtr = &OwnerComp;
+    DelegateHandle = Enemy->OnWeaponSheathed.AddLambda([this, OwnerCompWeakPtr]()
+        {
             if (OwnerCompWeakPtr.IsValid() && EnemyWeakPtr.IsValid())
             {
                 AJHEnemyBase* EnemyPtr = EnemyWeakPtr.Get();
@@ -49,7 +112,7 @@ EBTNodeResult::Type UBTTask_EquipWeapon::ExecuteTask(UBehaviorTreeComponent& Own
                 if (EnemyPtr && OwnerCompPtr)
                 {
                     // 델리게이트 제거
-                    EnemyPtr->OnWeaponEquipped.Remove(DelegateHandle);
+                    EnemyPtr->OnWeaponSheathed.Remove(DelegateHandle);
                     // 태스크 완료
                     FinishLatentTask(*OwnerCompPtr, EBTNodeResult::Succeeded);
                 }
@@ -60,7 +123,7 @@ EBTNodeResult::Type UBTTask_EquipWeapon::ExecuteTask(UBehaviorTreeComponent& Own
     return EBTNodeResult::InProgress;
 }
 
-EBTNodeResult::Type UBTTask_EquipWeapon::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTTask_SheatheWeapon::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     // Enemy와 DelegateHandle이 유효한 경우 델리게이트 제거
     if (EnemyWeakPtr.IsValid() && DelegateHandle.IsValid())
@@ -68,7 +131,7 @@ EBTNodeResult::Type UBTTask_EquipWeapon::AbortTask(UBehaviorTreeComponent& Owner
         AJHEnemyBase* Enemy = EnemyWeakPtr.Get();
         if (Enemy)
         {
-            Enemy->OnWeaponEquipped.Remove(DelegateHandle);
+            Enemy->OnWeaponSheathed.Remove(DelegateHandle);
         }
     }
 

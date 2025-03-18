@@ -105,11 +105,10 @@ void AJHEnemyBase::SetWeapon(AJHWeapon* NewWeapon, const FName& SocketName)
 
 void AJHEnemyBase::Die()
 {
-    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(JHAnimInstance);
-    if (JHAnimInstance)
+    JHCHECK(EnemyAnimInstance);
+    if (EnemyAnimInstance)
     {
-        JHAnimInstance->SetDeadAnim();
+        EnemyAnimInstance->SetDeadAnim();
     }
 
     SetActorEnableCollision(false);
@@ -148,11 +147,11 @@ float AJHEnemyBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 void AJHEnemyBase::OnAssetLoadCompleted()
 {
     Super::OnAssetLoadCompleted();
-    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(JHAnimInstance);
+    EnemyAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
+    JHCHECK(EnemyAnimInstance);
     
 
-    JHAnimInstance->OnApplyDamage.AddLambda([this]()
+    EnemyAnimInstance->OnApplyDamage.AddLambda([this]()
         {
             FAttackInfo AttackInfo{};
             AttackInfo.Damage = CharacterStat->GetAttack();
@@ -177,6 +176,7 @@ void AJHEnemyBase::OnWeaponSheatheCompleted(UAnimMontage* Montage, bool bInterru
 {
     if (bInterrupted)
         JHLOG(Warning, TEXT("%s interrupted"), *Montage->GetName());
+    WeaponEquipped = false;
     OnWeaponSheathed.Broadcast();
 }
 

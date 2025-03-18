@@ -37,6 +37,7 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void OnAssetLoadCompleted() override;
 	virtual void EquipWeapon() { JHLOG(Error, TEXT("Did Not override EqupWeapon but called by BT")); }
+	virtual void SheatheWeapon() { JHLOG(Error, TEXT("Did Not override SheatheWeapon but called by BT")); }
 
 	UFUNCTION()
 	void OnWeaponEquipCompleted(UAnimMontage* Montage, bool bInterrupted);
@@ -71,6 +72,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior")
 	class AJHPatrolRoute* PatrolRoute;
 
+protected:
+	class UJHAnimInstance* EnemyAnimInstance;
 private:
 	UPROPERTY()
 	class AJHAIController* JHAIController;

@@ -16,14 +16,25 @@ AJHEnemy_Melee::AJHEnemy_Melee()
 
 void AJHEnemy_Melee::EquipWeapon()
 {
-    UJHAnimInstance* AnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(AnimInstance);
-    if (AnimInstance)
+    JHCHECK(EnemyAnimInstance);
+    if (EnemyAnimInstance)
     {
-        AnimInstance->Montage_Play(EquipWeaponMontage);
+        EnemyAnimInstance->Montage_Play(EquipWeaponMontage);
         FOnMontageEnded MontageEndedDelegate;
         MontageEndedDelegate.BindUObject(this, &AJHEnemyBase::OnWeaponEquipCompleted);
-        AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, EquipWeaponMontage);
+        EnemyAnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, EquipWeaponMontage);
+    }
+}
+
+void AJHEnemy_Melee::SheatheWeapon()
+{
+    JHCHECK(EnemyAnimInstance);
+    if (EnemyAnimInstance)
+    {
+        EnemyAnimInstance->Montage_Play(SheatheWeaponMontage);
+        FOnMontageEnded MontageEndedDelegate;
+        MontageEndedDelegate.BindUObject(this, &AJHEnemyBase::OnWeaponSheatheCompleted);
+        EnemyAnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, SheatheWeaponMontage);
     }
 }
 
@@ -51,17 +62,14 @@ void AJHEnemy_Melee::OnAssetLoadCompleted()
         }
     }
 
-    UJHAnimInstance* AnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(AnimInstance);
-
-    if (AnimInstance)
+    JHCHECK(EnemyAnimInstance);
+    if (EnemyAnimInstance)
     {
-
-        AnimInstance->OnPullOut.AddLambda([this]()
+        EnemyAnimInstance->OnPullOut.AddLambda([this]()
             {
                 MoveWeapon(WeaponSocketName_Equipped);
             });
-        AnimInstance->OnSheathe.AddLambda([this]()
+        EnemyAnimInstance->OnSheathe.AddLambda([this]()
             {
                 MoveWeapon(WeaponSocketName_Sheathed);
             });
@@ -70,7 +78,13 @@ void AJHEnemy_Melee::OnAssetLoadCompleted()
 
 void AJHEnemy_Melee::Attack()
 {
-    UJHAnimInstance* JHAnimInstance = StaticCast<UJHAnimInstance*>(GetMesh()->GetAnimInstance());
-    JHAnimInstance->Montage_Play(AttackMontage);
+    JHCHECK(EnemyAnimInstance);
+    if (EnemyAnimInstance)
+    {
+        EnemyAnimInstance->Montage_Play(AttackMontage);
+        FOnMontageEnded MontageEndedDelegate;
+        MontageEndedDelegate.BindUObject(Combat, &UJHCombatComponent::OnAttackMontageEnded);
+        EnemyAnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, AttackMontage);
+    }
     Combat->SetAttacking(true);
 }
