@@ -19,6 +19,7 @@ AJHEnemyBase::AJHEnemyBase()
     : DeadTimer(5.0f)
     , DeadTimerHandle{}
     , CombatIndicatorUI(nullptr)
+    , WeaponEquipped(false)
 {
     AssetIndex = 0;
 
@@ -35,6 +36,13 @@ AJHEnemyBase::AJHEnemyBase()
 
     CombatIndicator->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
     CombatIndicator->SetWidgetSpace(EWidgetSpace::Screen);
+
+    // µðÆúÆ® Anim
+    static ConstructorHelpers::FClassFinder<UAnimInstance> ABP_CHARACTER(TEXT("/Game/Player/ABP_JHCharacter.ABP_JHCharacter_C"));
+    if (ABP_CHARACTER.Succeeded())
+    {
+        GetMesh()->SetAnimInstanceClass(ABP_CHARACTER.Class);
+    }
 
     static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/UI/UI_HPBar.UI_HPBar_C"));
     if (UI_HUD.Succeeded())
@@ -83,31 +91,24 @@ void AJHEnemyBase::PostInitializeComponents()
     CharacterStat->OnHPIsZero.AddUObject(this, &AJHEnemyBase::Die);
 }
 
-void AJHEnemyBase::SetWeapon(AJHWeapon* NewWeapon)
+void AJHEnemyBase::SetWeapon(AJHWeapon* NewWeapon, const FName& SocketName)
 {
-    FName WeaponSocket(TEXT("hand_rSocket"));
     if (nullptr != NewWeapon)
     {
-        NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
+        NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
         NewWeapon->SetOwner(this);
         Combat->SetWeapon(NewWeapon);
     }
 }
 
-void AJHEnemyBase::Attack()
-{
-    UJHAnimInstance* JHAnimInstance = StaticCast<UJHAnimInstance*>(GetMesh()->GetAnimInstance());
-    JHAnimInstance->PlayAttackMontage();
-    Combat->SetAttacking(true);
-}
+
 
 void AJHEnemyBase::Die()
 {
-    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(JHAnimInstance);
-    if (JHAnimInstance)
+    JHCHECK(EnemyAnimInstance);
+    if (EnemyAnimInstance)
     {
-        JHAnimInstance->SetDeadAnim();
+        EnemyAnimInstance->SetDeadAnim();
     }
 
     SetActorEnableCollision(false);
@@ -146,11 +147,11 @@ float AJHEnemyBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 void AJHEnemyBase::OnAssetLoadCompleted()
 {
     Super::OnAssetLoadCompleted();
-    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(JHAnimInstance)
-        JHAnimInstance->OnMontageEnded.AddDynamic(Combat, &UJHCombatComponent::OnAttackMontageEnded);
+    EnemyAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
+    JHCHECK(EnemyAnimInstance);
+    
 
-    JHAnimInstance->OnApplyDamage.AddLambda([this]()
+    EnemyAnimInstance->OnApplyDamage.AddLambda([this]()
         {
             FAttackInfo AttackInfo{};
             AttackInfo.Damage = CharacterStat->GetAttack();
@@ -161,6 +162,24 @@ void AJHEnemyBase::OnAssetLoadCompleted()
     });
 }
 
+void AJHEnemyBase::OnWeaponEquipCompleted(UAnimMontage* Montage, bool bInterrupted)
+{
+    if (bInterrupted)
+        JHLOG(Warning, TEXT("%s interrupted"), *Montage->GetName());
+
+    JHLOG_S(Warning);
+    WeaponEquipped = true;
+    OnWeaponEquipped.Broadcast();
+}
+
+void AJHEnemyBase::OnWeaponSheatheCompleted(UAnimMontage* Montage, bool bInterrupted)
+{
+    if (bInterrupted)
+        JHLOG(Warning, TEXT("%s interrupted"), *Montage->GetName());
+    WeaponEquipped = false;
+    OnWeaponSheathed.Broadcast();
+}
+
 int32 AJHEnemyBase::GetExp() const
 {
     return CharacterStat->GetDropExp();
@@ -169,4 +188,14 @@ int32 AJHEnemyBase::GetExp() const
 AJHPatrolRoute* AJHEnemyBase::GetPatrolRoute()
 {
     return PatrolRoute;
+}
+
+void AJHEnemyBase::MoveWeapon(const FName& SocketName)
+{
+    AJHWeapon* curWeapon = Combat->GetCurWeapon();
+    JHCHECK(curWeapon);
+    if (nullptr != curWeapon)
+    {
+        curWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+    }
 }

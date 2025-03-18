@@ -7,6 +7,9 @@
 #include "JHICombat.h"
 #include "JHEnemyBase.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnWeaponEquippedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnWeaponSheathedDelegate);
+
 class AJHPatrolRoute;
 
 UCLASS()
@@ -24,8 +27,8 @@ protected:
 // Combat Interface
 // =================
 public:
-	virtual void SetWeapon(AJHWeapon* NewWeapon) override;
-	virtual void Attack() override;
+	virtual void SetWeapon(AJHWeapon* NewWeapon, const FName& SocketName) override;
+	virtual void Attack() { JHLOG_S(Error); };
 	virtual void Die() override;
 
 	virtual bool CanSetWeapon();
@@ -33,10 +36,26 @@ public:
 public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void OnAssetLoadCompleted() override;
+	virtual void EquipWeapon() { JHLOG(Error, TEXT("Did Not override EqupWeapon but called by BT")); }
+	virtual void SheatheWeapon() { JHLOG(Error, TEXT("Did Not override SheatheWeapon but called by BT")); }
 
+	UFUNCTION()
+	void OnWeaponEquipCompleted(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION()
+	void OnWeaponSheatheCompleted(UAnimMontage* Montage, bool bInterrupted);
+public:
+	bool IsWeaponEquipped() const { return WeaponEquipped; }
 public:
 	int32 GetExp() const;
 	AJHPatrolRoute* GetPatrolRoute();
+
+protected:
+	void MoveWeapon(const FName& SocketName);
+
+public:
+	FOnWeaponEquippedDelegate OnWeaponEquipped;
+	FOnWeaponSheathedDelegate OnWeaponSheathed;
+
 public:
 	UPROPERTY(VisibleAnywhere, Category = "UI")
 	class UWidgetComponent* HPBarWidget;
@@ -52,6 +71,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior")
 	class AJHPatrolRoute* PatrolRoute;
+
+protected:
+	class UJHAnimInstance* EnemyAnimInstance;
 private:
 	UPROPERTY()
 	class AJHAIController* JHAIController;
@@ -63,4 +85,7 @@ private:
 
 	UPROPERTY()
 	class UJHCombatIndicator* CombatIndicatorUI;
+
+private:
+	bool WeaponEquipped;
 };

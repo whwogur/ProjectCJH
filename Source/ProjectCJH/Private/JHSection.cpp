@@ -3,7 +3,7 @@
 
 #include "JHSection.h"
 #include "Engine/OverlapResult.h"
-#include "JHEnemyBase.h"
+#include "JHEnemy_Melee.h"
 #include "LootBox.h"
 #include "JHPlayerCharacter.h"
 #include "JHGameMode.h"
@@ -145,7 +145,7 @@ void AJHSection::OperatePortal(bool bOpen)
 void AJHSection::OnNPCSpawn()
 {
 	GetWorld()->GetTimerManager().ClearTimer(SpawnNPCTimerHandle);
-	AJHEnemyBase* npcEnemy = GetWorld()->SpawnActor<AJHEnemyBase>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
+	AJHEnemy_Melee* npcEnemy = GetWorld()->SpawnActor<AJHEnemy_Melee>(GetActorLocation() + FVector::UpVector * 90.0f, FRotator::ZeroRotator);
 	JHCHECK(npcEnemy);
 	if (nullptr != npcEnemy)
 	{

@@ -8,6 +8,8 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
+class AJHWeapon;
+
 USTRUCT(BlueprintType)
 struct FAttackInfo
 {
@@ -45,12 +47,15 @@ public:
 
 public:
 	bool CanSetWeapon();
-	void SetWeapon(class AJHWeapon* NewWeapon);
+	void SetWeapon(AJHWeapon* Weapon);
+	void SetWeaponMeshVisible(bool Visibility, bool PropagateToChildren = false);
 
+	AJHWeapon* GetCurWeapon() const { return CurrentWeapon; }
 	FOnAttackEndDelegate OnAttackEnd;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	class AJHWeapon* CurrentWeapon;
+	AJHWeapon* CurrentWeapon;
+
 public:
 	bool IsAttacking() { return bAttacking; }
 	void SetAttacking(bool Value) { bAttacking = Value; }

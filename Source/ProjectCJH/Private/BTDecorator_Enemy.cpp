@@ -62,9 +62,18 @@ UBTDecorator_IsWeaponEquipped::UBTDecorator_IsWeaponEquipped()
 
 bool UBTDecorator_IsWeaponEquipped::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	return false;
+	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
+	if (!ControllingPawn)
+		return false;
+	AJHEnemyBase* ControllingEnemy = Cast<AJHEnemyBase>(ControllingPawn);
+	if (!ControllingEnemy)
+		return false;
+
+	bool weaponEqupped = ControllingEnemy->IsWeaponEquipped();
+
+	//JHLOG(Warning, TEXT("WeaponEquipped %s"), weaponEqupped ? TEXT("true") : TEXT("false"));
+	return weaponEqupped;
 }
-#pragma endregion
 
 // ==================
 // BTD IsInDefenseRange

@@ -59,9 +59,17 @@ bool UJHCombatComponent::CanSetWeapon()
     return (nullptr == CurrentWeapon);
 }
 
-void UJHCombatComponent::SetWeapon(AJHWeapon* NewWeapon)
+void UJHCombatComponent::SetWeapon(AJHWeapon* Weapon)
 {
-    JHCHECK((nullptr != NewWeapon && nullptr == CurrentWeapon));
+    JHCHECK((nullptr != Weapon && nullptr == CurrentWeapon));
+
+    CurrentWeapon = Weapon;
+}
+
+void UJHCombatComponent::SetWeaponMeshVisible(bool Visibility, bool PropagateToChildren)
+{
+    JHCHECK(CurrentWeapon);
+    CurrentWeapon->SetMeshVisible(Visibility, PropagateToChildren);
 }
 
 void UJHCombatComponent::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)

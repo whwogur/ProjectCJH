@@ -29,7 +29,7 @@ protected:
 // Combat Interface
 // =================
 public:
-	virtual void SetWeapon(AJHWeapon* NewWeapon) override;
+	virtual void SetWeapon(AJHWeapon* NewWeapon, const FName& SocketName) override;
 	virtual void Attack() override;
 	virtual void Die() override;
 	
@@ -83,4 +83,7 @@ private:
 
 	UPROPERTY()
 	class AJHPlayerController* JHPlayerController;
+
+private:
+	static const FName WeaponSocketName;
 };

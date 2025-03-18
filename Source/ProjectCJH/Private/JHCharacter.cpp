@@ -2,7 +2,6 @@
 
 
 #include "JHCharacter.h"
-#include "JHAnimInstance.h"
 
 #include "JHCharacterSetting.h"
 #include "JHGameInstance.h"
@@ -22,13 +21,6 @@ AJHCharacter::AJHCharacter()
     GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.f, 0.0f));
     GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
     GetCapsuleComponent()->SetCollisionProfileName(TEXT("JHCharacter"));
-
-    // µðÆúÆ® Anim
-    static ConstructorHelpers::FClassFinder<UAnimInstance> ABP_CHARACTER(TEXT("/Game/Player/ABP_JHCharacter.ABP_JHCharacter_C"));
-    if (ABP_CHARACTER.Succeeded())
-    {
-        GetMesh()->SetAnimInstanceClass(ABP_CHARACTER.Class);
-    }
 
     SetCharacterState(ECharacterState::LOADING);
 }
