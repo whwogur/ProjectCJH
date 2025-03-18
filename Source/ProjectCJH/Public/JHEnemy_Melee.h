@@ -19,9 +19,7 @@ public:
 public:
 	virtual void Attack() override;
 	virtual void EquipWeapon() override;
-public:
-	bool IsWeaponEquipped() const { return WeaponEquipped; }
-	
+
 protected:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
@@ -49,6 +47,5 @@ private:
 	static const FName WeaponSocketName_Equipped;
 	static const FName WeaponSocketName_Sheathed;
 
-private:
-	bool WeaponEquipped;
+
 };

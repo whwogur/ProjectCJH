@@ -62,9 +62,15 @@ UBTDecorator_IsWeaponEquipped::UBTDecorator_IsWeaponEquipped()
 
 bool UBTDecorator_IsWeaponEquipped::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	return false;
+	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
+	if (!ControllingPawn)
+		return false;
+	AJHEnemyBase* ControllingEnemy = Cast<AJHEnemyBase>(ControllingPawn);
+	if (!ControllingEnemy)
+		return false;
+
+	return ControllingEnemy->IsWeaponEquipped();
 }
-#pragma endregion
 
 // ==================
 // BTD IsInDefenseRange

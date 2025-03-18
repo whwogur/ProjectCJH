@@ -19,6 +19,7 @@ AJHEnemyBase::AJHEnemyBase()
     : DeadTimer(5.0f)
     , DeadTimerHandle{}
     , CombatIndicatorUI(nullptr)
+    , WeaponEquipped(false)
 {
     AssetIndex = 0;
 
@@ -167,6 +168,7 @@ void AJHEnemyBase::OnWeaponEquipCompleted(UAnimMontage* Montage, bool bInterrupt
     if (bInterrupted)
         JHLOG(Warning, TEXT("%s interrupted"), *Montage->GetName());
 
+    WeaponEquipped = true;
     OnWeaponEquipped.Broadcast();
 }
 

@@ -41,6 +41,8 @@ public:
 	void OnWeaponEquipCompleted(UAnimMontage* Montage, bool bInterrupted);
 	void OnWeaponSheatheCompleted(UAnimMontage* Montage, bool bInterrupted);
 public:
+	bool IsWeaponEquipped() const { return WeaponEquipped; }
+public:
 	int32 GetExp() const;
 	AJHPatrolRoute* GetPatrolRoute();
 
@@ -79,5 +81,6 @@ private:
 	UPROPERTY()
 	class UJHCombatIndicator* CombatIndicatorUI;
 
-
+private:
+	bool WeaponEquipped;
 };

@@ -10,7 +10,6 @@ const FName AJHEnemy_Melee::WeaponSocketName_Equipped(TEXT("hand_rSocket"));
 const FName AJHEnemy_Melee::WeaponSocketName_Sheathed(TEXT("weapon_pelvisSocket"));
 
 AJHEnemy_Melee::AJHEnemy_Melee()
-    : WeaponEquipped(false)
 {
 	WeaponClass = AJHWeapon::StaticClass();
 }
