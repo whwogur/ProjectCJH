@@ -17,9 +17,10 @@ public:
 
 public:
 	float GetAttackRange() const { return AttackRange; }
+	void SetMeshVisible(bool Visibility, bool PropagateToChildren = false);
 public:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	UStaticMeshComponent* Weapon;
+	UStaticMeshComponent* SMWeapon;
 
 protected:
 	// Called when the game starts or when spawned

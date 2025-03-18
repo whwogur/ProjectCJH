@@ -2,7 +2,7 @@
 
 
 #include "JHPlayerCharacter.h"
-#include "JHAnimInstance.h"
+#include "JHAnimInstance_Player.h"
 #include "JHPlayerController.h"
 #include "InputMappingContext.h"
 #include "JHInputData.h"
@@ -16,6 +16,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "JHPlayerState.h"
 #include "JHHUDWidget.h"
+
+const FName AJHPlayerCharacter::WeaponSocketName(TEXT("hand_rSocket"));
 
 AJHPlayerCharacter::AJHPlayerCharacter()
     : CanExecuteNextCombo(false)
@@ -40,6 +42,12 @@ AJHPlayerCharacter::AJHPlayerCharacter()
 	SpringArm->bDoCollisionTest = true;
 	SpringArm->TargetArmLength = 450.0f;
 	SpringArm->bUsePawnControlRotation = true;
+
+    static ConstructorHelpers::FClassFinder<UAnimInstance> ABP_CHARACTER(TEXT("/Game/Player/ABP_Player.ABP_Player_C"));
+    if (ABP_CHARACTER.Succeeded())
+    {
+        GetMesh()->SetAnimInstanceClass(ABP_CHARACTER.Class);
+    }
 
     static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_PLAYER(TEXT("/Game/Player/Input/IMC_Player.IMC_Player"));
     JHCHECK(IMC_PLAYER.Succeeded());
@@ -112,7 +120,7 @@ float AJHPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 void AJHPlayerCharacter::OnAssetLoadCompleted()
 {
     Super::OnAssetLoadCompleted();
-    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
+    UJHAnimInstance_Player* JHAnimInstance = Cast<UJHAnimInstance_Player>(GetMesh()->GetAnimInstance());
     JHCHECK(JHAnimInstance)
         JHAnimInstance->OnMontageEnded.AddDynamic(Combat, &UJHCombatComponent::OnAttackMontageEnded);
     JHAnimInstance->OnNextAttackCheck.AddLambda([this, JHAnimInstance]() -> void {
@@ -211,12 +219,11 @@ void AJHPlayerCharacter::AddMovementInput(FVector WorldDirection, float ScaleVal
     Super::AddMovementInput(WorldDirection, ScaleValue, bForce);
 }
 
-void AJHPlayerCharacter::SetWeapon(AJHWeapon* NewWeapon)
+void AJHPlayerCharacter::SetWeapon(AJHWeapon* NewWeapon, const FName& SocketName)
 {
-    FName WeaponSocket(TEXT("hand_rSocket"));
     if (nullptr != NewWeapon)
     {
-        NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
+        NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
         NewWeapon->SetOwner(this);
         Combat->SetWeapon(NewWeapon);
     }
@@ -236,7 +243,7 @@ void AJHPlayerCharacter::Attack()
     {
         JHCHECK((0 == CurrentCombo));
         AttackStartComboState();
-        UJHAnimInstance* JHAnimInstance = StaticCast<UJHAnimInstance*>(GetMesh()->GetAnimInstance());
+        UJHAnimInstance_Player* JHAnimInstance = StaticCast<UJHAnimInstance_Player*>(GetMesh()->GetAnimInstance());
         JHAnimInstance->PlayAttackMontage();
         JHAnimInstance->JumpToAttackMontageSection(CurrentCombo);
         Combat->SetAttacking(true);

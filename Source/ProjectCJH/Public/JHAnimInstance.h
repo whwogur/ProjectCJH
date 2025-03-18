@@ -8,6 +8,8 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnApplyDamageDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnPullOutDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnSheatheDelegate);
 
 UCLASS()
 class PROJECTCJH_API UJHAnimInstance : public UAnimInstance
@@ -21,13 +23,12 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
-	void PlayAttackMontage();
-	void JumpToAttackMontageSection(int32 NewSection);
 	void SetDeadAnim() { IsDead = true; }
 public:
 	FOnNextAttackCheckDelegate OnNextAttackCheck;
 	FOnApplyDamageDelegate OnApplyDamage;
-
+	FOnPullOutDelegate OnPullOut;
+	FOnSheatheDelegate OnSheathe;
 private:
 	UFUNCTION()
 	void AnimNotify_ApplyDamage();
@@ -35,7 +36,12 @@ private:
 	UFUNCTION()
 	void AnimNotify_NextAttackCheck();
 
-	FName GetAttackMontageSectionName(int32 Section);
+	UFUNCTION()
+	void AnimNotify_PullOut();
+
+	UFUNCTION()
+	void AnimNotify_Sheathe();
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pawn", Meta=(AllowPrivateAccess=true))
 	float CurrentPawnSpeed;
@@ -49,6 +55,4 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn", Meta = (AllowPrivateAccess = true))
 	bool IsDead;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pawn", Meta=(AllowPrivateAccess=true))
-	UAnimMontage* AttackMontage;
 };

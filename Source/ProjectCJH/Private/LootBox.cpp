@@ -51,7 +51,7 @@ void ALootBox::OnPlayerOverlap(UPrimitiveComponent* OverlappedComp, AActor* Othe
 		if (Character->CanSetWeapon())
 		{
 			AJHWeapon* NewWeapon = GetWorld()->SpawnActor<AJHWeapon>(WeaponItemClass, FVector::ZeroVector, FRotator::ZeroRotator);
-			Character->SetWeapon(NewWeapon);
+			Character->SetWeapon(NewWeapon, TEXT("hand_rSocket"));
 		}
 		else
 		{
