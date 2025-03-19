@@ -13,4 +13,7 @@ class PROJECTCJH_API UEnvQueryContext_AttackTarget : public UEnvQueryContext
 	
 public:
 	virtual void ProvideContext(FEnvQueryInstance& QueryInstance, FEnvQueryContextData& ContextData) const override;
+
+private:
+	static const FName AttackTargetKey;
 };

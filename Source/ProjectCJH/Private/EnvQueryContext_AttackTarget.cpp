@@ -6,6 +6,7 @@
 #include "EnvironmentQuery/Items/EnvQueryItemType_Actor.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+const FName UEnvQueryContext_AttackTarget::AttackTargetKey(TEXT("AttackTarget"));
 
 void UEnvQueryContext_AttackTarget::ProvideContext(FEnvQueryInstance& QueryInstance, FEnvQueryContextData& ContextData) const
 {
@@ -29,10 +30,9 @@ void UEnvQueryContext_AttackTarget::ProvideContext(FEnvQueryInstance& QueryInsta
     UBlackboardComponent* BlackboardComp = AIController->GetBlackboardComponent();
     if (BlackboardComp)
     {
-        AActor* AttackTarget = Cast<AActor>(BlackboardComp->GetValueAsObject("AttackTarget"));
+        AActor* AttackTarget = Cast<AActor>(BlackboardComp->GetValueAsObject(AttackTargetKey));
         if (AttackTarget)
         {
-            // 타겟을 컨텍스트 데이터에 설정
             UEnvQueryItemType_Actor::SetContextHelper(ContextData, AttackTarget);
         }
     }

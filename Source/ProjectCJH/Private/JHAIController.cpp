@@ -42,9 +42,10 @@ AJHAIController::AJHAIController()
 	JHCHECK(nullptr != AIPerception)
 	// 시각 감각 설정
 	UAISenseConfig_Sight* SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
-	SightConfig->SightRadius = 500.0f;
-	SightConfig->LoseSightRadius = 600.0f;
-	SightConfig->PeripheralVisionAngleDegrees = 90.0f;
+	SightConfig->SightRadius = 1500.0f;
+	SightConfig->LoseSightRadius = 2000.0f;
+	SightConfig->SetMaxAge(10.0f);
+	SightConfig->PeripheralVisionAngleDegrees = 60.0f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
@@ -52,10 +53,11 @@ AJHAIController::AJHAIController()
 
 	// 청각 감각 설정
 	UAISenseConfig_Hearing* HearingConfig = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("HearingConfig"));
-	HearingConfig->HearingRange = 300.0f;
-	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
-	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
+	HearingConfig->HearingRange = 500.0f;
+	HearingConfig->SetMaxAge(5.0f);
+	HearingConfig->DetectionByAffiliation.bDetectEnemies = true;
+	HearingConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	HearingConfig->DetectionByAffiliation.bDetectFriendlies = false;
 	AIPerception->ConfigureSense(*HearingConfig);
 
 	AIPerception->SetDominantSense(UAISense_Sight::StaticClass());
@@ -68,7 +70,8 @@ void AJHAIController::OnPossess(APawn* InPawn)
 	JHCHECK(InitializeBlackboard(*Blackboard, *BBAsset));
 
 	Blackboard->SetValueAsEnum(EnemyStateKey, static_cast<uint8>(EEnemyState::PASSIVE));
-
+	Blackboard->SetValueAsFloat(DefendRadiusKey, 350.0f);
+	Blackboard->SetValueAsFloat(AttackRadiusKey, 100.0f);
 	// 퍼셉션 업데이트 이벤트 바인딩
 	JHCHECK(AIPerception);
 	if (AIPerception)
