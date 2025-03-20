@@ -34,12 +34,16 @@ public:
 	virtual void Die() override;
 	
 	virtual bool CanSetWeapon();
+// CombatInterface
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PostInitializeComponents() override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual void OnAssetLoadCompleted() override;
+
+	UFUNCTION()
+	void ComboMontageEnded(UAnimMontage* Montage, bool Interrupted);
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
 	UInputMappingContext* InputMapping;
@@ -67,7 +71,6 @@ private:
 
 	void AttackStartComboState();
 	void AttackEndComboState();
-
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
 	bool CanExecuteNextCombo;
@@ -84,6 +87,15 @@ private:
 	UPROPERTY()
 	class AJHPlayerController* JHPlayerController;
 
+	UPROPERTY()
+	class UJHAnimInstance_Player* PlayerAnimInstance;
 private:
 	static const FName WeaponSocketName;
+
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", Meta = (AllowPrivateAccess = true))
+	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", Meta = (AllowPrivateAccess = true))
+	UAnimMontage* ComboAttackMontage;
 };

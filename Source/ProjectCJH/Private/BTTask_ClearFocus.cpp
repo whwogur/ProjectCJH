@@ -7,6 +7,7 @@
 UBTTask_ClearFocus::UBTTask_ClearFocus()
 {
     NodeName = "Clear Focus";
+    bNotifyTick = false;
 }
 
 EBTNodeResult::Type UBTTask_ClearFocus::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

@@ -63,6 +63,12 @@ AJHPlayerCharacter::AJHPlayerCharacter()
         InputActions = INPUTDATA.Object;
     }
 
+    static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/Animations/Combat/AttackCombo02_RM.AttackCombo02_RM"));
+    if (ATTACK_MONTAGE.Succeeded())
+    {
+        ComboAttackMontage = ATTACK_MONTAGE.Object;
+    }
+
 	AttackEndComboState();
 }
 
@@ -103,8 +109,7 @@ void AJHPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void AJHPlayerCharacter::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
-
-    Combat->OnAttackEnd.AddUObject(this, &AJHPlayerCharacter::AttackEndComboState);
+    
     CharacterStat->OnHPIsZero.AddUObject(this, &AJHPlayerCharacter::Die);
 }
 
@@ -120,20 +125,18 @@ float AJHPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 void AJHPlayerCharacter::OnAssetLoadCompleted()
 {
     Super::OnAssetLoadCompleted();
-    UJHAnimInstance_Player* JHAnimInstance = Cast<UJHAnimInstance_Player>(GetMesh()->GetAnimInstance());
-    JHCHECK(JHAnimInstance)
-        JHAnimInstance->OnMontageEnded.AddDynamic(Combat, &UJHCombatComponent::OnAttackMontageEnded);
-    JHAnimInstance->OnNextAttackCheck.AddLambda([this, JHAnimInstance]() -> void {
+    PlayerAnimInstance = Cast<UJHAnimInstance_Player>(GetMesh()->GetAnimInstance());
+    JHCHECK(PlayerAnimInstance);
+    PlayerAnimInstance->OnNextAttackCheck.AddLambda([this]() -> void {
         CanExecuteNextCombo = false;
         if (IsComboInputOn)
         {
             AttackStartComboState();
-            JHAnimInstance->JumpToAttackMontageSection(CurrentCombo);
+            PlayerAnimInstance->JumpToAttackMontageSection(CurrentCombo, ComboAttackMontage);
         }
-        });
+    });
 
-    JHAnimInstance->OnApplyDamage.AddLambda([this]()
-        {
+    PlayerAnimInstance->OnApplyDamage.AddLambda([this]() -> void {
             FAttackInfo AttackInfo{}; // TEMP
             AttackInfo.Damage = CharacterStat->GetAttack();
             AttackInfo.Radius = 30.0f;
@@ -142,9 +145,20 @@ void AJHPlayerCharacter::OnAssetLoadCompleted()
             Combat->ApplyDamage(AttackInfo);
     });
 
+    FOnMontageEnded MontageEndedDelegate;
+    MontageEndedDelegate.BindUObject(this, &AJHPlayerCharacter::ComboMontageEnded);
+    PlayerAnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, ComboAttackMontage);
+
     AJHPlayerState* JHPlayerState = Cast<AJHPlayerState>(GetPlayerState());
     JHCHECK(JHPlayerState);
     CharacterStat->SetNewLevel(JHPlayerState->GetCharacterLevel());
+}
+
+void AJHPlayerCharacter::ComboMontageEnded(UAnimMontage* Montage, bool Interrupted)
+{
+    AttackEndComboState();
+    if (Interrupted)
+        JHLOG(Warning, TEXT("Montage %s Interrupted"), *Montage->GetName());
 }
 
 void AJHPlayerCharacter::OnJumpAction(const FInputActionValue& Value)
@@ -231,7 +245,7 @@ void AJHPlayerCharacter::SetWeapon(AJHWeapon* NewWeapon, const FName& SocketName
 
 void AJHPlayerCharacter::Attack()
 {
-    if (Combat->IsAttacking())
+    if (IsAttacking)
     {
         JHCHECK(FMath::IsWithinInclusive<int32>(CurrentCombo, 1, MaxCombo));
         if (CanExecuteNextCombo)
@@ -243,20 +257,18 @@ void AJHPlayerCharacter::Attack()
     {
         JHCHECK((0 == CurrentCombo));
         AttackStartComboState();
-        UJHAnimInstance_Player* JHAnimInstance = StaticCast<UJHAnimInstance_Player*>(GetMesh()->GetAnimInstance());
-        JHAnimInstance->PlayAttackMontage();
-        JHAnimInstance->JumpToAttackMontageSection(CurrentCombo);
-        Combat->SetAttacking(true);
+        PlayerAnimInstance->Montage_Play(ComboAttackMontage);
+        PlayerAnimInstance->JumpToAttackMontageSection(CurrentCombo, ComboAttackMontage);
+        IsAttacking = true;
     }
 }
 
 void AJHPlayerCharacter::Die()
 {
-    UJHAnimInstance* JHAnimInstance = Cast<UJHAnimInstance>(GetMesh()->GetAnimInstance());
-    JHCHECK(JHAnimInstance);
-    if (JHAnimInstance)
+    JHCHECK(PlayerAnimInstance);
+    if (PlayerAnimInstance)
     {
-        JHAnimInstance->SetDeadAnim();
+        PlayerAnimInstance->SetDeadAnim();
     }
     SetCharacterState(ECharacterState::DEAD);
 }

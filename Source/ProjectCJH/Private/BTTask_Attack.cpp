@@ -26,13 +26,6 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
         return EBTNodeResult::Failed;
     }
 
-    // Combat 컴포넌트 가져오기
-    UJHCombatComponent* CombatComp = Character->FindComponentByClass<UJHCombatComponent>();
-    if (!CombatComp)
-    {
-        return EBTNodeResult::Failed;
-    }
-
     // Combat 인터페이스 확인 후 공격 실행
     if (IJHICombat* CombatInterface = Cast<IJHICombat>(Character))
     {
@@ -44,7 +37,7 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
     }
 
     // BehaviorTreeComponent 포인터 안전하게 캡처
-    CombatComp->OnAttackEnd.AddWeakLambda(this, [this, &OwnerComp]()
+    Character->OnAttackEnd.AddWeakLambda(this, [this, &OwnerComp]()
         {
             FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
         });

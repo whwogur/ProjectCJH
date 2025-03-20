@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "JHAnimInstance.h"
 #include "JHAnimInstance_Player.generated.h"
+DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnComboAttackEndDelegate);
 
 UCLASS()
 class PROJECTCJH_API UJHAnimInstance_Player : public UJHAnimInstance
@@ -13,10 +15,12 @@ class PROJECTCJH_API UJHAnimInstance_Player : public UJHAnimInstance
 public:
 	UJHAnimInstance_Player();
 public:
-	void PlayAttackMontage();
-	void JumpToAttackMontageSection(int32 NewSection);
+	FOnNextAttackCheckDelegate OnNextAttackCheck;
+	FOnComboAttackEndDelegate OnComboAttackEnd;
+
+	UFUNCTION()
+	void AnimNotify_NextAttackCheck();
+
+	void JumpToAttackMontageSection(int32 NewSection, const UAnimMontage* Montage);
 	FName GetAttackMontageSectionName(int32 Section);
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn", Meta = (AllowPrivateAccess = true))
-	UAnimMontage* AttackMontage;
 };

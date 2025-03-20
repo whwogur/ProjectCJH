@@ -73,3 +73,8 @@ void AJHCharacter::OnAssetLoadCompleted()
     GetMesh()->SetSkeletalMesh(LoadedAssetPath.Get());
     SetCharacterState(ECharacterState::READY);
 }
+
+void AJHCharacter::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+    OnAttackEnd.Broadcast();
+}

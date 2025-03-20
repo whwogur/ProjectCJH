@@ -6,21 +6,17 @@
 
 UJHAnimInstance_Player::UJHAnimInstance_Player()
 {
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/Animations/Combat/AttackCombo02_RM.AttackCombo02_RM"));
-	if (ATTACK_MONTAGE.Succeeded())
-	{
-		AttackMontage = ATTACK_MONTAGE.Object;
-	}
+	
 }
-void UJHAnimInstance_Player::PlayAttackMontage()
+void UJHAnimInstance_Player::AnimNotify_NextAttackCheck()
 {
-	Montage_Play(AttackMontage, 1.0f);
+	OnNextAttackCheck.Broadcast();
 }
 
-void UJHAnimInstance_Player::JumpToAttackMontageSection(int32 NewSection)
+void UJHAnimInstance_Player::JumpToAttackMontageSection(int32 NewSection, const UAnimMontage* Montage)
 {
-	JHCHECK(Montage_IsPlaying(AttackMontage));
-	Montage_JumpToSection(GetAttackMontageSectionName(NewSection), AttackMontage);
+	JHCHECK(Montage_IsPlaying(Montage));
+	Montage_JumpToSection(GetAttackMontageSectionName(NewSection), Montage);
 }
 
 FName UJHAnimInstance_Player::GetAttackMontageSectionName(int32 Section)
