@@ -157,9 +157,23 @@ void AJHEnemyBase::OnAssetLoadCompleted()
             AttackInfo.Damage = CharacterStat->GetAttack();
             AttackInfo.Radius = 30.0f;
             AttackInfo.Range = 200.0f;
+            AttackInfo.CanBeBlocked = true;
+            AttackInfo.CanBeDodged = true;
 
             Combat->ApplyDamage(AttackInfo);
     });
+
+    EnemyAnimInstance->OnApplyAOEDamage.AddLambda([this]()
+        {
+            FAttackInfo AttackInfo{};
+            AttackInfo.Damage = CharacterStat->GetAttack();
+            AttackInfo.Radius = 50.0f;
+            AttackInfo.Range = 200.0f;
+            AttackInfo.CanBeBlocked = true;
+            AttackInfo.CanBeDodged = true;
+
+            Combat->ApplyAOEDamage(AttackInfo);
+        });
 }
 
 void AJHEnemyBase::OnWeaponEquipCompleted(UAnimMontage* Montage, bool bInterrupted)

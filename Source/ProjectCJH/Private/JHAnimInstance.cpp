@@ -39,11 +39,6 @@ void UJHAnimInstance::AnimNotify_ApplyDamage()
 	OnApplyDamage.Broadcast();
 }
 
-void UJHAnimInstance::AnimNotify_NextAttackCheck()
-{
-	OnNextAttackCheck.Broadcast();
-}
-
 void UJHAnimInstance::AnimNotify_PullOut()
 {
 	OnPullOut.Broadcast();
@@ -52,4 +47,9 @@ void UJHAnimInstance::AnimNotify_PullOut()
 void UJHAnimInstance::AnimNotify_Sheathe()
 {
 	OnSheathe.Broadcast();
+}
+
+void UJHAnimInstance::AnimNotify_ApplyAOEDamage()
+{
+	OnApplyAOEDamage.Broadcast();
 }

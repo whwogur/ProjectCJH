@@ -11,6 +11,7 @@
 UBTTask_EquipWeapon::UBTTask_EquipWeapon()
 {
 	NodeName = "Equip Weapon";
+    bNotifyTick = false;
 }
 
 EBTNodeResult::Type UBTTask_EquipWeapon::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

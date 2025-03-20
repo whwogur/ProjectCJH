@@ -73,6 +73,10 @@ void AJHEnemy_Melee::OnAssetLoadCompleted()
             {
                 MoveWeapon(WeaponSocketName_Sheathed);
             });
+
+        FOnMontageEnded MontageEndedDelegate;
+        MontageEndedDelegate.BindUObject(this, &AJHCharacter::OnAttackMontageEnded);
+        EnemyAnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, AttackMontage);
     }
 }
 
@@ -82,9 +86,6 @@ void AJHEnemy_Melee::Attack()
     if (EnemyAnimInstance)
     {
         EnemyAnimInstance->Montage_Play(AttackMontage);
-        FOnMontageEnded MontageEndedDelegate;
-        MontageEndedDelegate.BindUObject(Combat, &UJHCombatComponent::OnAttackMontageEnded);
-        EnemyAnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, AttackMontage);
     }
-    Combat->SetAttacking(true);
+    IsAttacking = true;
 }

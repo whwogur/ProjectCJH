@@ -6,10 +6,11 @@
 #include "Animation/AnimInstance.h"
 #include "JHAnimInstance.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate);
+
 DECLARE_MULTICAST_DELEGATE(FOnApplyDamageDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnPullOutDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnSheatheDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnApplyAOEDamageDelegate);
 
 UCLASS()
 class PROJECTCJH_API UJHAnimInstance : public UAnimInstance
@@ -25,22 +26,23 @@ public:
 public:
 	void SetDeadAnim() { IsDead = true; }
 public:
-	FOnNextAttackCheckDelegate OnNextAttackCheck;
+	
 	FOnApplyDamageDelegate OnApplyDamage;
 	FOnPullOutDelegate OnPullOut;
 	FOnSheatheDelegate OnSheathe;
+	FOnApplyAOEDamageDelegate OnApplyAOEDamage;
 private:
 	UFUNCTION()
 	void AnimNotify_ApplyDamage();
-
-	UFUNCTION()
-	void AnimNotify_NextAttackCheck();
 
 	UFUNCTION()
 	void AnimNotify_PullOut();
 
 	UFUNCTION()
 	void AnimNotify_Sheathe();
+
+	UFUNCTION()
+	void AnimNotify_ApplyAOEDamage();
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Pawn", Meta=(AllowPrivateAccess=true))

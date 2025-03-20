@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "JHCharacter.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
+
 class AJHWeapon;
 
 UCLASS()
@@ -24,6 +26,11 @@ public:
 	ECharacterState GetCharacterState() const { return CurrentState; }
 
 	virtual void OnAssetLoadCompleted();
+
+	FOnAttackEndDelegate OnAttackEnd;
+
+	UFUNCTION(BlueprintCallable)
+	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 public:
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = "State", Meta = (AllowPrivateAccess = true))
 	ECharacterState CurrentState;
@@ -32,4 +39,6 @@ protected:
 	FSoftObjectPath CharacterAssetToLoad;
 	TSharedPtr<struct FStreamableHandle> AssetStreamingHandle;
 	uint8 AssetIndex;
+
+	bool IsAttacking;
 };

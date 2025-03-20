@@ -7,6 +7,7 @@
 UBTTask_SetState::UBTTask_SetState()
 {
     NodeName = "Set State";
+    bNotifyTick = false;
 }
 
 EBTNodeResult::Type UBTTask_SetState::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

@@ -6,8 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "JHCombatComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
-
 class AJHWeapon;
 
 USTRUCT(BlueprintType)
@@ -20,6 +18,8 @@ public:
 		: Damage(0)
 		, Radius(0)
 		, Range(0)
+		, CanBeDodged(true)
+		, CanBeBlocked(true)
 	{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
@@ -31,6 +31,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	float Range;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	bool CanBeDodged;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	bool CanBeBlocked;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -44,26 +49,15 @@ public:
 
 public:
 	void ApplyDamage(const FAttackInfo& AttackInfo);
-
+	void ApplyAOEDamage(const FAttackInfo& AttackInfo);
 public:
 	bool CanSetWeapon();
 	void SetWeapon(AJHWeapon* Weapon);
 	void SetWeaponMeshVisible(bool Visibility, bool PropagateToChildren = false);
 
 	AJHWeapon* GetCurWeapon() const { return CurrentWeapon; }
-	FOnAttackEndDelegate OnAttackEnd;
+	
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	AJHWeapon* CurrentWeapon;
-
-public:
-	bool IsAttacking() { return bAttacking; }
-	void SetAttacking(bool Value) { bAttacking = Value; }
-
-	UFUNCTION(BlueprintCallable)
-	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
-private:
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Attack", Meta = (AllowPrivateAccess = true))
-	bool bAttacking;
 };
